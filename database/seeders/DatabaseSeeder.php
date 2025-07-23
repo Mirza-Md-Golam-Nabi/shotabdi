@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Database\Seeders\TransactionSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,6 +21,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'mobile' => '01825712671',
             'email' => 'test@example.com',
+            'password' => Hash::make('12345'),
         ]);
+
+        $this->call(UserSeeder::class);
+        $this->call(TransactionSeeder::class);
     }
 }
