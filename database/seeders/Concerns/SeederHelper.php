@@ -4,7 +4,7 @@ namespace Database\Seeders\Concerns;
 
 trait SeederHelper
 {
-    protected function userList(): array
+    protected function customerList(): array
     {
         return [
             [
@@ -28,7 +28,7 @@ trait SeederHelper
                 'mobile' => '01712457884'
             ],
             [
-                'name' => 'শফিক কাকা',
+                'name' => 'রফিক কাকা',
                 'mobile' => '01712457811'
             ],
             [

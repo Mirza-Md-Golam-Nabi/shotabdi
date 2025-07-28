@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Enums\TransactionTypeEnum;
+use App\Models\Customer;
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Concerns\SeederHelper;
@@ -19,16 +19,16 @@ class TransactionSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = $this->userList();
+        $customers = $this->customerList();
 
-        foreach ($users as $user) {
-            $user_id = User::where('mobile', $user['mobile'])->value('id');
+        foreach ($customers as $customer) {
+            $customer_id = Customer::where('mobile', $customer['mobile'])->value('id');
 
-            $limit = rand(3, 5);
+            $limit = rand(10, 15);
 
             for ($i = 1; $i <= $limit; $i++) {
                 Transaction::create([
-                    'user_id' => $user_id,
+                    'customer_id' => $customer_id,
                     'date' => Carbon::now()->subDays(rand(0, 10))->format('Y-m-d'),
                     'type' => TransactionTypeEnum::cases()[array_rand(TransactionTypeEnum::cases())],
                     'amount' => rand(5, 100) * 100,

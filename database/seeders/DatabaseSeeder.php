@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\CustomerSeeder;
 use Illuminate\Support\Facades\Hash;
 use Database\Seeders\TransactionSeeder;
 
@@ -24,7 +25,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('12345'),
         ]);
 
-        $this->call(UserSeeder::class);
+        $this->call(CustomerSeeder::class);
         $this->call(TransactionSeeder::class);
     }
 }
