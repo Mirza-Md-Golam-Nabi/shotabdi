@@ -1,6 +1,20 @@
 <x-filament::page>
     <div>
-        <div class="text-sm font-bold text-center">দৈনিক হিসাব</div>
+        <div class="flex justify-between">
+            <div>
+                <x-filament::button icon="heroicon-o-arrow-left" size="sm" color="danger" tag="a"
+                    href="{{ route('filament.admin.pages.daily-calculation', ['date' => $date['prev_date']]) }}">
+
+                </x-filament::button>
+            </div>
+            <div class="text-sm font-bold text-center">দৈনিক হিসাব</div>
+            <div>
+                <x-filament::button icon="heroicon-o-arrow-right" size="sm" color="success" tag="a"
+                    href="{{ route('filament.admin.pages.daily-calculation', ['date' => $date['next_date']]) }}">
+
+                </x-filament::button>
+            </div>
+        </div>
 
         <div class="flex justify-between items-center text-sm font-medium mb-2">
             <div>তারিখঃ {{ $date['bn_date'] }}</div>
@@ -29,12 +43,22 @@
                     @forelse ($transactions as $tran)
                         <tr class="{{ $loop->odd ? $odd : $even }} border-b border-gray-300">
                             <td class="border border-gray-300 px-1 py-1">
+                                @if ($tran['deposit_id'])
+                                    <x-filament::button icon="heroicon-o-pencil" size="sm" color="success"
+                                        tag="a"
+                                        href="{{ route('filament.admin.resources.transactions.edit', ['record' => $tran['deposit_id']]) }}" />
+                                @endif
                                 {{ $tran['deposit_name'] }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
                                 {{ $tran['deposit_amount'] }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1">
+                                @if ($tran['expense_id'])
+                                    <x-filament::button icon="heroicon-o-pencil" size="sm" color="success"
+                                        tag="a"
+                                        href="{{ route('filament.admin.resources.transactions.edit', ['record' => $tran['expense_id']]) }}" />
+                                @endif
                                 {{ $tran['expense_name'] }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">

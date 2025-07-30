@@ -32,13 +32,15 @@ class DailyCalculation extends Page
         $date_parse = Carbon::parse($date_select);
         $this->date = [
             'select_date' => $date_select,
+            'prev_date' => $date_parse->copy()->subDay()->toDateString(),
+            'next_date' => $date_parse->copy()->addDay()->toDateString(),
             'bn_date' => enToBn($date_parse->locale('bn')->translatedFormat('j F, Y')),
             'bn_day' => $date_parse->locale('bn')->translatedFormat('l')
         ];
 
         // Load all transaction data
         $trans = Transaction::with('customer:id,name')
-            ->select('customer_id', 'type', 'amount')
+            ->select('id', 'customer_id', 'type', 'amount')
             ->where('date', $date_select)
             ->get();
 
@@ -63,14 +65,18 @@ class DailyCalculation extends Page
 
         $maxCount = max(count($deposits), count($expenses));
 
-        $this->transactions = collect(range(0, $maxCount - 1))
-            ->map(function ($i) use ($deposits, $expenses) {
-                return [
-                    'deposit_name'   => $deposits[$i]['customer']['name'] ?? null,
-                    'deposit_amount' => numberFormat($deposits, $i),
-                    'expense_name'   => $expenses[$i]['customer']['name'] ?? null,
-                    'expense_amount' => numberFormat($expenses, $i),
-                ];
-            })->toArray();
+        if ($maxCount) {
+            $this->transactions = collect(range(0, $maxCount - 1))
+                ->map(function ($i) use ($deposits, $expenses) {
+                    return [
+                        'deposit_id' => $deposits[$i]['id'] ?? null,
+                        'deposit_name'   => $deposits[$i]['customer']['name'] ?? null,
+                        'deposit_amount' => numberFormat($deposits, $i),
+                        'expense_id' => $expenses[$i]['id'] ?? null,
+                        'expense_name'   => $expenses[$i]['customer']['name'] ?? null,
+                        'expense_amount' => numberFormat($expenses, $i),
+                    ];
+                })->toArray();
+        }
     }
 }
