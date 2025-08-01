@@ -81,7 +81,12 @@ class EditTransaction extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->after(function () {
+                    return redirect()->route('filament.admin.pages.daily-calculation', [
+                        'date' => $this->incoming_date
+                    ]);
+                }),
         ];
     }
 
