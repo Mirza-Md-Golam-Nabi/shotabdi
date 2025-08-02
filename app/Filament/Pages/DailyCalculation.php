@@ -25,7 +25,7 @@ class DailyCalculation extends Page
 
     public array $date = [];
 
-    public ?Distribute $distribute;
+    public ?array $distribute;
 
     public bool $isProfit;
 
@@ -43,7 +43,8 @@ class DailyCalculation extends Page
         ];
 
         $this->distribute = Distribute::where('date', $date_select)
-            ->first(['home', 'dokan']);
+            ->first(['home', 'dokan'])
+        ?->toArray();
 
         // Load all transaction data
         $trans = Transaction::with('customer:id,name')
@@ -101,10 +102,12 @@ class DailyCalculation extends Page
                         ->numeric(),
                 ])
                 ->action(function (array $data) {
+                    $filtered = array_filter($data);
                     Distribute::updateOrCreate(
                         ['date' => $this->date['select_date']],
-                        $data
+                        $filtered
                     );
+
                     Notification::make()
                         ->title('সফল হয়েছে')
                         ->success()

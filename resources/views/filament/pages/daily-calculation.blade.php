@@ -122,8 +122,6 @@
         </div>
         <div>
             <x-filament-actions::actions class="mt-2" :actions="$this->getHeaderActions()" />
-
-            <!-- আপনার বাকি কন্টেন্ট -->
         </div>
     </div>
 
