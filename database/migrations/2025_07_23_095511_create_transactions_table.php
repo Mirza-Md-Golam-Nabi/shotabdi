@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedMediumInteger('amount');
             $table->timestamps();
             $table->index('customer_id');
+            $table->index('date');
         });
     }
 
