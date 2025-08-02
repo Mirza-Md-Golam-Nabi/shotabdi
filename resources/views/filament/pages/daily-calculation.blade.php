@@ -100,9 +100,30 @@
                                 {{ $sum['total'] }}
                             </td>
                         </tr>
+                        @if ($distribute)
+                        <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-300">
+                            <td class="border border-gray-300 px-1 py-1 text-center">
+                                {{ __('বাসায় ক্যাশ') }}
+                            </td>
+                            <td class="border border-gray-300 px-1 py-1 text-right">
+                                {{ format_number($distribute['home']) }}
+                            </td>
+                            <td class="border border-gray-300 px-1 py-1 text-center">
+                                {{ __('দোকানে ক্যাশ') }}
+                            </td>
+                            <td class="border border-gray-300 px-1 py-1 text-right">
+                                {{ format_number($distribute['dokan']) }}
+                            </td>
+                        </tr>
+                        @endif
                     @endif
                 </tbody>
             </table>
+        </div>
+        <div>
+            <x-filament-actions::actions class="mt-2" :actions="$this->getHeaderActions()" />
+
+            <!-- আপনার বাকি কন্টেন্ট -->
         </div>
     </div>
 

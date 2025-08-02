@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('distributes', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->unsignedMediumInteger('dokan')->default(0);
-            $table->unsignedMediumInteger('home')->default(0);
+            $table->unsignedMediumInteger('dokan')->nullable()->default(0);
+            $table->unsignedMediumInteger('home')->nullable()->default(0);
             $table->timestamps();
             $table->index('date');
         });
