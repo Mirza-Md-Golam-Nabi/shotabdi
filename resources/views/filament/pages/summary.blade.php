@@ -1,4 +1,13 @@
 <x-filament::page>
+
+    <form wire:submit.prevent="submit" class="mb-6">
+        {{ $this->form }}
+
+        <x-filament::button icon="heroicon-o-magnifying-glass" size="sm" color="primary" type="submit" class="mt-2">
+            Search
+        </x-filament::button>
+    </form>
+
     <div class="flex flex-wrap gap-2">
         @foreach ($groupedTransactions as $item)
             <a href="{{ route('filament.admin.pages.daily-calculation', ['date' => $item->date]) }}"

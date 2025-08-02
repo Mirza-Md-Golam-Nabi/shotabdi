@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use Carbon\Carbon;
 use Filament\Pages\Page;
 use App\Models\Transaction;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Support\Collection;
 
 class Summary extends Page
@@ -20,6 +21,8 @@ class Summary extends Page
     protected ?string $heading = 'Transactions Date';
 
     public Collection $groupedTransactions;
+
+    public ?string $searchDate = null;
 
     public function mount(): void
     {
@@ -39,5 +42,23 @@ class Summary extends Page
                 'bn_day'  => $carbonDate->locale('bn')->translatedFormat('l'),
             ];
         });
+
+        $this->form->fill();
+    }
+
+    protected function getFormSchema(): array
+    {
+        return [
+            DatePicker::make('searchDate')
+                ->label('Select a date')
+                ->required(),
+        ];
+    }
+
+    public function submit()
+    {
+        if ($this->searchDate) {
+            return redirect()->route('filament.admin.pages.daily-calculation', ['date' => $this->searchDate]);
+        }
     }
 }
