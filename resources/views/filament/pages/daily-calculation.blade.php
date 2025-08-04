@@ -100,7 +100,8 @@
                                 {{ $sum['total'] }}
                             </td>
                         </tr>
-                        @if ($distribute)
+                    @endif
+                    @if ($distribute)
                         <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-300">
                             <td class="border border-gray-300 px-1 py-1 text-center">
                                 {{ __('বাসায় ক্যাশ') }}
@@ -115,7 +116,6 @@
                                 {{ format_number($distribute['dokan']) }}
                             </td>
                         </tr>
-                        @endif
                     @endif
                 </tbody>
             </table>
