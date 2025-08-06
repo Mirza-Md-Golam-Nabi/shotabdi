@@ -1,23 +1,18 @@
 <?php
-
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Customer;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Transaction;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransactionResource\Pages;
-use App\Filament\Resources\TransactionResource\RelationManagers;
+use App\Models\Customer;
+use App\Models\Transaction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class TransactionResource extends Resource
 {
@@ -37,11 +32,11 @@ class TransactionResource extends Resource
                     ->schema([
                         Select::make('customer_id')
                             ->label('কাস্টমার নাম')
-                            // ->relationship('customer', 'name')
+                        // ->relationship('customer', 'name')
                             ->options(Customer::pluck('name', 'id'))
                             ->required()
                             ->searchable()
-                            // ->preload()
+                        // ->preload()
                             ->columnSpan('full')
                             ->createOptionForm([
                                 TextInput::make('name')
@@ -56,7 +51,7 @@ class TransactionResource extends Resource
                                     ->helperText('শুধু ইংরেজি ডিজিট ব্যবহার করুন, যেমন: 017XXXXXXXX')
                                     ->validationMessages([
                                         'length' => 'ফোন নাম্বার অবশ্যই ১১ সংখ্যার হতে হবে।',
-                                        'regex' => 'ফোন নাম্বার অবশ্যই ইংরেজিতে ১১ ডিজিটের এবং ০১ দিয়ে শুরু হতে হবে।',
+                                        'regex'  => 'ফোন নাম্বার অবশ্যই ইংরেজিতে ১১ ডিজিটের এবং ০১ দিয়ে শুরু হতে হবে।',
                                     ]),
                                 TextInput::make('address')
                                     ->label('ঠিকানা')
@@ -68,12 +63,16 @@ class TransactionResource extends Resource
                             }),
                         TextInput::make('deposit_amount')
                             ->label('জমা')
-                            ->numeric(),
+                            ->numeric()
+                            ->columnSpan(1),
                         TextInput::make('expense_amount')
                             ->label('খরচ')
-                            ->numeric(),
+                            ->numeric()
+                            ->columnSpan(1),
                     ])
-                    ->columns(2),
+                    ->columns([
+                        'default' => 2,
+                    ]),
             ])
             ->columns('full');
     }
@@ -125,10 +124,10 @@ class TransactionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\CreateTransaction::route('/'),
-            'list' => Pages\ListTransactions::route('/list'),
+            'index'  => Pages\CreateTransaction::route('/'),
+            'list'   => Pages\ListTransactions::route('/list'),
             'create' => Pages\CreateTransaction::route('/create'),
-            'edit' => Pages\EditTransaction::route('/{record}/edit'),
+            'edit'   => Pages\EditTransaction::route('/{record}/edit'),
         ];
     }
 }
