@@ -1,14 +1,16 @@
 <?php
-
 namespace Database\Seeders;
 
-use App\Models\Product;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use Database\Seeders\CashFlowSeeder;
 use Database\Seeders\CustomerSeeder;
-use Illuminate\Support\Facades\Hash;
+use Database\Seeders\ProductSeeder;
+use Database\Seeders\StockInSeeder;
 use Database\Seeders\TransactionSeeder;
+use Database\Seeders\TranTypeSeeder;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,14 +22,17 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'mobile' => '01825712671',
-            'email' => 'test@example.com',
+            'name'     => 'Test User',
+            'mobile'   => '01825712671',
+            'email'    => 'test@example.com',
             'password' => Hash::make('12345'),
         ]);
 
         $this->call(CustomerSeeder::class);
         $this->call(TransactionSeeder::class);
-        $this->call(Product::class);
+        $this->call(ProductSeeder::class);
+        $this->call(TranTypeSeeder::class);
+        $this->call(CashFlowSeeder::class);
+        $this->call(StockInSeeder::class);
     }
 }

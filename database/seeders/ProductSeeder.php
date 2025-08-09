@@ -3,11 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\Concerns\SeederHelper;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ProductSeeder extends Seeder
 {
+    use SeederHelper;
+
     /**
      * Run the database seeds.
      */
@@ -20,13 +23,5 @@ class ProductSeeder extends Seeder
                 'name' => $product
             ]);
         }
-    }
-
-    private function productList():array
-    {
-        return [
-            'সোনালী ফিড',
-            'সোনালী ম্যাশ ফিড'
-        ];
     }
 }

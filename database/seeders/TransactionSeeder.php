@@ -30,7 +30,8 @@ class TransactionSeeder extends Seeder
                 Transaction::create([
                     'customer_id' => $customer_id,
                     'date' => Carbon::now()->subDays(rand(0, 10))->format('Y-m-d'),
-                    'type' => TransactionTypeEnum::cases()[array_rand(TransactionTypeEnum::cases())],
+                    'cash_flow_id' => rand(1, 2),
+                    'tran_type_id' => rand(1, 4),
                     'amount' => rand(5, 100) * 100,
                 ]);
             }

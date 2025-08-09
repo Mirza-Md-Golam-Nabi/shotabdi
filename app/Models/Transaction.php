@@ -9,11 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
-    protected $fillable = ['customer_id', 'date', 'type', 'amount'];
-
-    protected $casts = [
-        'type' => TransactionTypeEnum::class,
-    ];
+    protected $fillable = ['customer_id', 'date', 'cash_flow_id', 'tran_type_id', 'amount'];
 
     public function customer(): BelongsTo
     {
