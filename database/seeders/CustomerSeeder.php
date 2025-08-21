@@ -1,11 +1,9 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\Customer;
 use Database\Seeders\Concerns\SeederHelper;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class CustomerSeeder extends Seeder
 {
@@ -21,7 +19,11 @@ class CustomerSeeder extends Seeder
         foreach ($customers as $customer) {
             Customer::firstOrCreate(
                 ['mobile' => $customer['mobile']],
-                ['name' => $customer['name']]
+                [
+                    'name'      => $customer['name'],
+                    'balance'   => 0,
+                    'is_farmer' => $customer['is_farmer'] ?? rand(0, 1),
+                ]
             );
         }
     }

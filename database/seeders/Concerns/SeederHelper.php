@@ -7,8 +7,9 @@ trait SeederHelper
     {
         return [
             [
-                'name'   => 'আসলাম কাকা',
+                'name'   => 'কাউন এগ্রো ইন্ডা লিঃ',
                 'mobile' => '01712457896',
+                'is_farmer' => 0,
             ],
             [
                 'name'   => 'হাসিব ভাই',
@@ -43,24 +44,6 @@ trait SeederHelper
             'ডিম',
             'সোনালী ফিড',
             'সোনালী ম্যাশ ফিড',
-        ];
-    }
-
-    protected function tranTypeList(): array
-    {
-        return [
-            'Product',
-            'Egg',
-            'Deposit',
-            'Cashback',
-        ];
-    }
-
-    protected function cashFlowList(): array
-    {
-        return [
-            'Deposit',
-            'Expense',
         ];
     }
 }

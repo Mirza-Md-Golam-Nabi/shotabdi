@@ -1,22 +1,25 @@
 <?php
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StockInResource\Pages;
-use App\Models\Customer;
+use Filament\Tables;
 use App\Models\Product;
 use App\Models\StockIn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use App\Models\Customer;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use App\Filament\Traits\HasAmountCalculation;
+use App\Filament\Resources\StockInResource\Pages;
 
 class StockInResource extends Resource
 {
+    use HasAmountCalculation;
+
     protected static ?string $model = StockIn::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -128,7 +131,7 @@ class StockInResource extends Resource
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::updateAmount($set, $get);
+                            self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('rate')
                         ->label('রেট')
@@ -137,7 +140,7 @@ class StockInResource extends Resource
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::updateAmount($set, $get);
+                            self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('discount')
                         ->label('ডিস্কাউন্ট')
@@ -145,7 +148,7 @@ class StockInResource extends Resource
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::updateAmount($set, $get);
+                            self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('deposit')
                         ->label('জমা')
@@ -153,7 +156,7 @@ class StockInResource extends Resource
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::updateAmount($set, $get);
+                            self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('cashback')
                         ->label('ফেরত')
@@ -161,12 +164,12 @@ class StockInResource extends Resource
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::updateAmount($set, $get);
+                            self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('amount')
                         ->label('টাকার পরিমান')
                         ->numeric()
-                        ->readOnly()
+                        ->disabled()
                         ->columnSpan(1),
                 ])
                 ->columns([
@@ -209,17 +212,5 @@ class StockInResource extends Resource
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
         ];
-    }
-
-    private static function updateAmount($set, $get)
-    {
-        $quantity = $get('quantity') ?? 0;
-        $rate     = $get('rate') ?? 0;
-        $discount = $get('discount') ?? 0;
-        $deposit  = $get('deposit') ?? 0;
-        $cashback = $get('cashback') ?? 0;
-
-        $amount = ($quantity * $rate) + $deposit - $discount - $cashback;
-        $set('amount', $amount);
     }
 }

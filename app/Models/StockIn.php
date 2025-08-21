@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Enums\AvailableEnum;
 use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,11 @@ class StockIn extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['date', 'customer_id', 'product_id', 'quantity', 'rate', 'amount', 'discount'];
+    protected $fillable = ['date', 'customer_id', 'product_id', 'quantity', 'rate', 'amount', 'discount', 'is_available'];
+
+    protected $casts = [
+        'is_available' => AvailableEnum::class,
+    ];
 
     public function customer(): BelongsTo
     {

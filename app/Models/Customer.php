@@ -11,7 +11,7 @@ class Customer extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'mobile', 'address', 'balance'];
+    protected $fillable = ['name', 'mobile', 'address', 'balance', 'is_farmer'];
 
     public function transactions(): HasMany
     {

@@ -15,11 +15,17 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('customer_id');
             $table->date('date');
-            $table->string('type', 25);
+            $table->unsignedBigInteger('stock_in_id')->nullable();
+            $table->unsignedBigInteger('stock_out_id')->nullable();
+            $table->unsignedTinyInteger('cash_flow_id');
+            $table->unsignedTinyInteger('tran_type_id');
             $table->unsignedMediumInteger('amount');
             $table->timestamps();
             $table->index('customer_id');
             $table->index('date');
+            $table->index('cash_flow_id');
+            $table->index('tran_type_id');
+
         });
     }
 

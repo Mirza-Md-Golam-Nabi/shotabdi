@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources\CustomerResource\Pages;
 
 use App\Filament\Resources\CustomerResource;
@@ -13,7 +12,8 @@ class ManageCustomers extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->createAnother(false),
         ];
     }
 }

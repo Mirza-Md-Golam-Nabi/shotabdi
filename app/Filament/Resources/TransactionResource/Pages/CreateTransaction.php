@@ -16,6 +16,8 @@ class CreateTransaction extends CreateRecord
 
     protected ?string $lastDate;
 
+    protected static bool $canCreateAnother = false;
+
     protected function handleRecordCreation(array $data): Model
     {
         $this->lastDate = $data['date'];

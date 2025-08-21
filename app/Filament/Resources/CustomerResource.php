@@ -1,19 +1,18 @@
 <?php
-
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Customer;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CustomerResource\Pages;
+use App\Models\Customer;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\CustomerResource\RelationManagers;
 
 class CustomerResource extends Resource
 {
@@ -29,6 +28,7 @@ class CustomerResource extends Resource
                     ->label('নাম')
                     ->required()
                     ->maxLength(255),
+
                 TextInput::make('mobile')
                     ->label('ফোন নাম্বার')
                     ->nullable()
@@ -37,11 +37,21 @@ class CustomerResource extends Resource
                     ->helperText('শুধু ইংরেজি ডিজিট ব্যবহার করুন, যেমন: 017XXXXXXXX')
                     ->validationMessages([
                         'length' => 'ফোন নাম্বার অবশ্যই ১১ সংখ্যার হতে হবে।',
-                        'regex' => 'ফোন নাম্বার অবশ্যই ইংরেজিতে ১১ ডিজিটের এবং ০১ দিয়ে শুরু হতে হবে।',
+                        'regex'  => 'ফোন নাম্বার অবশ্যই ইংরেজিতে ১১ ডিজিটের এবং ০১ দিয়ে শুরু হতে হবে।',
                     ]),
+
                 TextInput::make('address')
                     ->label('ঠিকানা')
                     ->maxLength(255),
+
+                Radio::make('is_farmer')
+                    ->label('খামারি?')
+                    ->options([
+                        '0' => 'No',
+                        '1' => 'Yes',
+                    ])
+                    ->inline()
+                    ->inlineLabel(false),
             ]);
     }
 
@@ -55,6 +65,9 @@ class CustomerResource extends Resource
                 TextColumn::make('mobile')
                     ->label('ফোন নাম্বার')
                     ->searchable(),
+                IconColumn::make('is_farmer')
+                    ->label('খামারি')
+                    ->boolean(),
                 TextColumn::make('address')
                     ->label('ঠিকানা')
                     ->searchable()
@@ -76,8 +89,10 @@ class CustomerResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->iconButton(),
+                Tables\Actions\DeleteAction::make()
+                    ->iconButton(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ])

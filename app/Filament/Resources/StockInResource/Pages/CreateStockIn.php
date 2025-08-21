@@ -1,18 +1,22 @@
 <?php
 namespace App\Filament\Resources\StockInResource\Pages;
 
+use App\Enums\AvailableEnum;
 use App\Filament\Resources\StockInResource;
+use App\Filament\Traits\HandlesTransactions;
 use App\Models\Customer;
 use App\Models\Stock;
 use App\Models\StockIn;
-use App\Models\Transaction;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class CreateStockIn extends CreateRecord
 {
+    use HandlesTransactions;
+
     protected static string $resource = StockInResource::class;
+
+    protected static bool $canCreateAnother = false;
 
     protected ?string $date;
 
@@ -22,68 +26,22 @@ class CreateStockIn extends CreateRecord
     {
         $this->date = $data['date'];
 
-        DB::transaction(function () use ($data) {
-            foreach ($data['stock_ins'] as $stock) {
-                $amount  = ($stock['rate'] * $stock['quantity']) - $stock['discount'];
-                $balance = ($stock['rate'] * $stock['quantity']) + $stock['deposit'] - $stock['cashback'] - $stock['discount'];
+        foreach ($data['stock_ins'] as $stock) {
+            $amount  = $this->amount($stock);
+            $balance = $this->balance($stock);
 
-                $this->stock_in = StockIn::create([
-                    'date'        => $this->date,
-                    'customer_id' => $stock['customer_id'],
-                    'product_id'  => $stock['product_id'],
-                    'quantity'    => $stock['quantity'],
-                    'rate'        => $stock['rate'],
-                    'amount'      => $amount,
-                    'discount'    => $stock['discount'],
-                ]);
+            $this->stock_in = $stockIn = $this->createStockIn($stock);
 
-                Stock::updateOrCreate(
-                    ['product_id' => $stock['product_id']],
-                    [
-                        'quantity' => DB::raw('quantity + ' . $stock['quantity']),
-                        'amount'   => DB::raw('amount + ' . $amount),
-                    ]
-                );
+            $this->updateOrCreateStock($stock);
 
-                if ($stock['customer_id']) {
-                    Customer::where('id', $stock['customer_id'])
-                        ->update([
-                            'balance' => DB::raw('balance - ' . $balance),
-                        ]);
-                }
-
-                if ($stock['product_id'] == 1) {
-                    Transaction::create([
-                        'customer_id'  => $stock['customer_id'],
-                        'date'         => $this->date,
-                        'cash_flow_id' => 1, // deposit
-                        'tran_type_id' => 2, // Egg
-                        'amount'       => $amount,
-                    ]);
-
-                    if ($stock['deposit']) {
-                        Transaction::create([
-                            'customer_id'  => $stock['customer_id'],
-                            'date'         => $this->date,
-                            'cash_flow_id' => 1, // deposit
-                            'tran_type_id' => 3, // deposit
-                            'amount'       => $stock['deposit'],
-                        ]);
-                    }
-
-                    if ($stock['cashback']) {
-                        Transaction::create([
-                            'customer_id'  => $stock['customer_id'],
-                            'date'         => $this->date,
-                            'cash_flow_id' => 2, // expense
-                            'tran_type_id' => 4, // Egg
-                            'amount'       => $stock['cashback'],
-                        ]);
-                    }
-                }
+            if ($this->is_farmer($stock['customer_id'])) {
+                $this->updateBalance($stock['customer_id'], $balance, 'subtract');
+            } else {
+                $this->updateBalance($stock['customer_id'], $balance, 'add');
             }
 
-        });
+            $this->saveTransaction($stock, $amount, $stockIn);
+        }
 
         return $this->stock_in;
     }
@@ -92,4 +50,74 @@ class CreateStockIn extends CreateRecord
     {
         return static::getResource()::getUrl('create', ['date' => $this->date]);
     }
+
+    protected function hasUnavailableStock($product_id): bool
+    {
+        return StockIn::where('product_id', $product_id)
+            ->whereIn('is_available', [AvailableEnum::INACTIVE, AvailableEnum::ACTIVE])
+            ->exists();
+    }
+
+    public function is_farmer($customer_id)
+    {
+        return Customer::where('id', $customer_id)->value('is_farmer');
+    }
+
+    protected function updateBalance($customer_id, $balance, $operation = 'add')
+    {
+        $customer = Customer::find($customer_id);
+
+        if (! $customer) {
+            return;
+        }
+
+        $operation === 'subtract'
+        ? $customer->decrement('balance', $balance)
+        : $customer->increment('balance', $balance);
+    }
+
+    protected function amount(array $data)
+    {
+        return ($data['rate'] * $data['quantity']) - $data['discount'];
+    }
+
+    protected function balance(array $data)
+    {
+        return ($data['rate'] * $data['quantity']) - $data['discount'] + $data['deposit'] - $data['cashback'];
+    }
+
+    protected function createStockIn(array $stock): StockIn
+    {
+        $hasUnavailableStock = $this->hasUnavailableStock($stock['product_id']);
+
+        $is_available = AvailableEnum::INACTIVE;
+        if (! $hasUnavailableStock) {
+            $is_available = AvailableEnum::ACTIVE;
+        }
+
+        return StockIn::create([
+            'date'         => $this->date,
+            'customer_id'  => $stock['customer_id'],
+            'product_id'   => $stock['product_id'],
+            'quantity'     => $stock['quantity'],
+            'rate'         => $stock['rate'],
+            'amount'       => $this->amount($stock),
+            'discount'     => $stock['discount'],
+            'is_available' => $is_available,
+        ]);
+    }
+
+    protected function updateOrCreateStock(array $data)
+    {
+        $stock = Stock::firstOrNew(['product_id' => $data['product_id']]);
+
+        $stock->quantity += $data['quantity'];
+
+        if ($stock->quantity == $data['quantity']) {
+            $stock->available = $data['quantity'];
+        }
+
+        $stock->save();
+    }
+
 }

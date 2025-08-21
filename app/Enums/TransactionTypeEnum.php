@@ -1,36 +1,19 @@
 <?php
-
 namespace App\Enums;
 
-enum TransactionTypeEnum: string
-{
-    case DEPOSIT = 'deposit';
-    case EXPENSE = 'expense';
+enum TransactionTypeEnum: int {
+    case FEED     = 1;
+    case EGG      = 2;
+    case DEPOSIT  = 3;
+    case CASHBACK = 4;
 
     public function description(): string
     {
         return match ($this) {
+            self::FEED => 'Feed',
+            self::EGG => 'Egg',
             self::DEPOSIT => 'Deposit',
-            self::EXPENSE => 'Expense',
+            self::CASHBACK => 'Cashback',
         };
-    }
-
-    public function bangla(): string
-    {
-        return match ($this) {
-            self::DEPOSIT => 'জমা',
-            self::EXPENSE => 'খরচ',
-        };
-    }
-
-    public static function options(): array
-    {
-        return collect(self::cases())
-            ->mapWithKeys(function ($case) {
-                return [
-                    $case->value => $case->bangla()
-                ];
-            })
-            ->toArray();
     }
 }

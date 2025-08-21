@@ -3,12 +3,10 @@ namespace Database\Seeders;
 
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Database\Seeders\CashFlowSeeder;
 use Database\Seeders\CustomerSeeder;
 use Database\Seeders\ProductSeeder;
 use Database\Seeders\StockInSeeder;
 use Database\Seeders\TransactionSeeder;
-use Database\Seeders\TranTypeSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -29,10 +27,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(CustomerSeeder::class);
-        $this->call(TransactionSeeder::class);
         $this->call(ProductSeeder::class);
-        $this->call(TranTypeSeeder::class);
-        $this->call(CashFlowSeeder::class);
-        $this->call(StockInSeeder::class);
+        // $this->call(StockInSeeder::class);
     }
 }
