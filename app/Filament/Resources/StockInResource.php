@@ -8,6 +8,7 @@ use App\Models\Customer;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
@@ -82,7 +83,7 @@ class StockInResource extends Resource
                         ->required()
                         ->searchable()
                     // ->preload()
-                        ->columnSpan('1')
+                        ->columnSpan('full')
                         ->createOptionForm([
                             TextInput::make('name')
                                 ->label('নাম')
@@ -101,6 +102,15 @@ class StockInResource extends Resource
                             TextInput::make('address')
                                 ->label('ঠিকানা')
                                 ->maxLength(255),
+                            Radio::make('is_farmer')
+                                ->label('খামারি')
+                                ->options([
+                                    '0' => 'No',
+                                    '1' => 'Yes',
+                                ])
+                                ->inline()
+                                ->inlineLabel(false)
+                                ->default('0'),
                         ])
                         ->createOptionUsing(function (array $data) {
                             $customer = Customer::create($data);
@@ -114,7 +124,7 @@ class StockInResource extends Resource
                         ->required()
                         ->searchable()
                     // ->preload()
-                        ->columnSpan('1')
+                        ->columnSpan('full')
                         ->createOptionForm([
                             TextInput::make('name')
                                 ->required()

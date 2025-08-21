@@ -45,13 +45,14 @@ class CustomerResource extends Resource
                     ->maxLength(255),
 
                 Radio::make('is_farmer')
-                    ->label('খামারি?')
+                    ->label('খামারি')
                     ->options([
                         '0' => 'No',
                         '1' => 'Yes',
                     ])
                     ->inline()
-                    ->inlineLabel(false),
+                    ->inlineLabel(false)
+                    ->default('0'),
             ]);
     }
 
