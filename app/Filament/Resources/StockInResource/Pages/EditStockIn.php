@@ -84,7 +84,7 @@ class EditStockIn extends EditRecord
             $updateData
         );
 
-        $this->saveTransaction($form_data, $amount, $this->record);
+        $this->saveStockInTransaction($form_data, $amount, $this->record);
     }
 
     public function form(Form $form): Form

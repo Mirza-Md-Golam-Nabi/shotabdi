@@ -1,27 +1,27 @@
 <?php
 namespace App\Filament\Resources;
 
-use App\Filament\Forms\CustomerForm;
-use App\Filament\Resources\StockInResource\Pages;
-use App\Filament\Traits\HasAmountCalculation;
-use App\Models\Customer;
-use App\Models\Product;
-use App\Models\StockIn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use App\Models\Product;
+use App\Models\Customer;
+use App\Models\StockOut;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Filament\Forms\CustomerForm;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use App\Filament\Traits\HasAmountCalculation;
+use App\Filament\Resources\StockOutResource\Pages;
 
-class StockInResource extends Resource
+class StockOutResource extends Resource
 {
     use HasAmountCalculation;
 
-    protected static ?string $model = StockIn::class;
+    protected static ?string $model = StockOut::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -59,10 +59,10 @@ class StockInResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\CreateStockIn::route('/'),
-            'list'   => Pages\ListStockIns::route('/list'),
-            'create' => Pages\CreateStockIn::route('/create'),
-            'edit'   => Pages\EditStockIn::route('/{record}/edit'),
+            'index'  => Pages\CreateStockOut::route('/'),
+            'list'   => Pages\ListStockOuts::route('/list'),
+            'create' => Pages\CreateStockOut::route('/create'),
+            'edit'   => Pages\EditStockOut::route('/{record}/edit'),
         ];
     }
 
@@ -73,7 +73,7 @@ class StockInResource extends Resource
                 ->label('তারিখ')
                 ->default(fn() => request()->query('date'))
                 ->required(),
-            Repeater::make('stock_ins')
+            Repeater::make('stock_outs')
                 ->schema([
                     Select::make('customer_id')
                         ->label('কাস্টমার নাম')
@@ -89,6 +89,7 @@ class StockInResource extends Resource
                             $customer = Customer::create($data);
                             return $customer->getKey();
                         }),
+
                     Select::make('product_id')
                         ->label('পণ্যের নাম')
                         ->placeholder('Select')
@@ -97,16 +98,8 @@ class StockInResource extends Resource
                         ->required()
                         ->searchable()
                     // ->preload()
-                        ->columnSpan('full')
-                        ->createOptionForm([
-                            TextInput::make('name')
-                                ->required()
-                                ->maxLength(255),
-                        ])
-                        ->createOptionUsing(function (array $data) {
-                            $product = Product::create($data);
-                            return $product->getKey();
-                        }),
+                        ->columnSpan('full'),
+
                     TextInput::make('quantity')
                         ->label('পরিমান')
                         ->required()
@@ -114,8 +107,9 @@ class StockInResource extends Resource
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::stockInUpdateAmount($set, $get);
+                            self::stockOutUpdateAmount($set, $get);
                         }),
+
                     TextInput::make('rate')
                         ->label('রেট')
                         ->required()
@@ -123,32 +117,27 @@ class StockInResource extends Resource
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::stockInUpdateAmount($set, $get);
+                            self::stockOutUpdateAmount($set, $get);
                         }),
+
                     TextInput::make('discount')
                         ->label('ডিস্কাউন্ট')
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::stockInUpdateAmount($set, $get);
+                            self::stockOutUpdateAmount($set, $get);
                         }),
+
                     TextInput::make('deposit')
                         ->label('জমা')
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            self::stockInUpdateAmount($set, $get);
+                            self::stockOutUpdateAmount($set, $get);
                         }),
-                    TextInput::make('cashback')
-                        ->label('ফেরত')
-                        ->numeric()
-                        ->columnSpan(1)
-                        ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
-                            self::stockInUpdateAmount($set, $get);
-                        }),
+
                     TextInput::make('amount')
                         ->label('টাকার পরিমান')
                         ->numeric()

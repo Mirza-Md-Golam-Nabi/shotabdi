@@ -40,7 +40,7 @@ class CreateStockIn extends CreateRecord
                 $this->updateBalance($stock['customer_id'], $balance, 'add');
             }
 
-            $this->saveTransaction($stock, $amount, $stockIn);
+            $this->saveStockInTransaction($stock, $amount, $stockIn);
         }
 
         return $this->stock_in;
@@ -58,9 +58,9 @@ class CreateStockIn extends CreateRecord
             ->exists();
     }
 
-    public function is_farmer($customer_id)
+    public function is_farmer($customer_id): bool
     {
-        return Customer::where('id', $customer_id)->value('is_farmer');
+        return Customer::where('id', $customer_id)->value('is_farmer')->value;
     }
 
     protected function updateBalance($customer_id, $balance, $operation = 'add')

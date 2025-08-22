@@ -7,29 +7,19 @@ use App\Models\Transaction;
 
 class StockTransactionService
 {
-    public function handleProductTransactions(array $stock, string $date, int $stockInId, float $amount): void
+    public function handleStockInTransactions(array $stock, string $date, int $stockInId, float $amount): void
     {
-        if ($stock['product_id'] == 1) {
-            // Egg
-            $this->createTransaction(
-                $stock['customer_id'],
-                $date,
-                $stockInId,
-                $amount,
-                CashFlowEnum::DEPOSIT,
-                TransactionTypeEnum::EGG
-            );
-        } else {
-            // Feed
-            $this->createTransaction(
-                $stock['customer_id'],
-                $date,
-                $stockInId,
-                $amount,
-                CashFlowEnum::DEPOSIT,
-                TransactionTypeEnum::FEED
-            );
-        }
+        $type = $stock['product_id'] == 1 ? TransactionTypeEnum::EGG : TransactionTypeEnum::FEED;
+
+        // Egg or Feed
+        $this->createTransaction(
+            $stock['customer_id'],
+            $date,
+            $stockInId,
+            $amount,
+            CashFlowEnum::DEPOSIT,
+            $type
+        );
 
         // Deposit
         if (! empty($stock['deposit'])) {
@@ -55,6 +45,34 @@ class StockTransactionService
             );
         }
     }
+
+    public function handleStockOutTransactions(array $stock, string $date, int $stockOutId, float $amount): void
+    {
+        $type = $stock['product_id'] == 1 ? TransactionTypeEnum::EGG : TransactionTypeEnum::FEED;
+
+        // Egg or Feed
+        $this->createTransaction(
+            $stock['customer_id'],
+            $date,
+            $stockOutId,
+            $amount,
+            CashFlowEnum::EXPENSE,
+            $type
+        );
+
+        // Deposit
+        if (! empty($stock['deposit'])) {
+            $this->createTransaction(
+                $stock['customer_id'],
+                $date,
+                $stockOutId,
+                $stock['deposit'],
+                CashFlowEnum::DEPOSIT,
+                TransactionTypeEnum::DEPOSIT
+            );
+        }
+    }
+
     protected function createTransaction(
         int $customer_id,
         string $date,

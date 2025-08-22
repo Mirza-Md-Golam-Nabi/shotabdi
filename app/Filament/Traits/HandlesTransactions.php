@@ -6,9 +6,15 @@ use App\Filament\Services\StockTransactionService;
 
 trait HandlesTransactions
 {
-    public function saveTransaction(array $stock, $amount, $stockIn)
+    public function saveStockInTransaction(array $stock, $amount, $stockIn)
     {
         app(StockTransactionService::class)
-            ->handleProductTransactions($stock, $this->date, $stockIn->id, $amount);
+            ->handleStockInTransactions($stock, $this->date, $stockIn->id, $amount);
+    }
+
+    public function saveStockOutTransaction(array $stock, $amount, $stockIn)
+    {
+        app(StockTransactionService::class)
+            ->handleStockOutTransactions($stock, $this->date, $stockIn->id, $amount);
     }
 }

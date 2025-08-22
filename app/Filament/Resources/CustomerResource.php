@@ -1,10 +1,9 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -23,37 +22,7 @@ class CustomerResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->label('নাম')
-                    ->required()
-                    ->maxLength(255),
-
-                TextInput::make('mobile')
-                    ->label('ফোন নাম্বার')
-                    ->nullable()
-                    ->length(11)
-                    ->rule('regex:/^01[0-9]{9}$/')
-                    ->helperText('শুধু ইংরেজি ডিজিট ব্যবহার করুন, যেমন: 017XXXXXXXX')
-                    ->validationMessages([
-                        'length' => 'ফোন নাম্বার অবশ্যই ১১ সংখ্যার হতে হবে।',
-                        'regex'  => 'ফোন নাম্বার অবশ্যই ইংরেজিতে ১১ ডিজিটের এবং ০১ দিয়ে শুরু হতে হবে।',
-                    ]),
-
-                TextInput::make('address')
-                    ->label('ঠিকানা')
-                    ->maxLength(255),
-
-                Radio::make('is_farmer')
-                    ->label('খামারি')
-                    ->options([
-                        '0' => 'No',
-                        '1' => 'Yes',
-                    ])
-                    ->inline()
-                    ->inlineLabel(false)
-                    ->default('0'),
-            ]);
+            ->schema(CustomerForm::fields());
     }
 
     public static function table(Table $table): Table
