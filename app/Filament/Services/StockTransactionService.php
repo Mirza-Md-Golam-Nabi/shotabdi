@@ -15,10 +15,10 @@ class StockTransactionService
         $this->createTransaction(
             $stock['customer_id'],
             $date,
-            $stockInId,
             $amount,
             CashFlowEnum::DEPOSIT,
-            $type
+            $type,
+            stock_in_id: $stockInId
         );
 
         // Deposit
@@ -26,10 +26,10 @@ class StockTransactionService
             $this->createTransaction(
                 $stock['customer_id'],
                 $date,
-                $stockInId,
                 $stock['deposit'],
                 CashFlowEnum::DEPOSIT,
-                TransactionTypeEnum::DEPOSIT
+                TransactionTypeEnum::DEPOSIT,
+                stock_in_id: $stockInId
             );
         }
 
@@ -38,10 +38,10 @@ class StockTransactionService
             $this->createTransaction(
                 $stock['customer_id'],
                 $date,
-                $stockInId,
                 $stock['cashback'],
                 CashFlowEnum::EXPENSE,
-                TransactionTypeEnum::CASHBACK
+                TransactionTypeEnum::CASHBACK,
+                stock_in_id: $stockInId
             );
         }
     }
@@ -54,10 +54,10 @@ class StockTransactionService
         $this->createTransaction(
             $stock['customer_id'],
             $date,
-            $stockOutId,
             $amount,
             CashFlowEnum::EXPENSE,
-            $type
+            $type,
+            stock_out_id: $stockOutId
         );
 
         // Deposit
@@ -65,10 +65,10 @@ class StockTransactionService
             $this->createTransaction(
                 $stock['customer_id'],
                 $date,
-                $stockOutId,
                 $stock['deposit'],
                 CashFlowEnum::DEPOSIT,
-                TransactionTypeEnum::DEPOSIT
+                TransactionTypeEnum::DEPOSIT,
+                stock_out_id: $stockOutId
             );
         }
     }
@@ -76,18 +76,28 @@ class StockTransactionService
     protected function createTransaction(
         int $customer_id,
         string $date,
-        int $stock_in_id,
         float $amount,
         CashFlowEnum $cash_flow_id,
-        TransactionTypeEnum $tran_type_id
+        TransactionTypeEnum $tran_type_id,
+        ?int $stock_in_id = null,
+        ?int $stock_out_id = null,
     ): void {
-        Transaction::create([
+        $data = [
             'customer_id'  => $customer_id,
             'date'         => $date,
-            'stock_in_id'  => $stock_in_id,
             'cash_flow_id' => $cash_flow_id,
             'tran_type_id' => $tran_type_id,
             'amount'       => $amount,
-        ]);
+        ];
+
+        if ($stock_in_id !== null) {
+            $data['stock_in_id'] = $stock_in_id;
+        }
+
+        if ($stock_out_id !== null) {
+            $data['stock_out_id'] = $stock_out_id;
+        }
+
+        Transaction::create($data);
     }
 }
