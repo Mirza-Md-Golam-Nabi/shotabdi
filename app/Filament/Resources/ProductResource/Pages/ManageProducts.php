@@ -1,9 +1,8 @@
 <?php
 namespace App\Filament\Resources\ProductResource\Pages;
 
-use Filament\Actions;
-use Filament\Tables\Table;
 use App\Filament\Resources\ProductResource;
+use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageProducts extends ManageRecords

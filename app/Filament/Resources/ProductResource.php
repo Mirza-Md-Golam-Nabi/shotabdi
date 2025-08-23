@@ -33,6 +33,13 @@ class ProductResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
+                TextInput::make('quantity')
+                    ->label('বর্তমান স্টক (বস্তা/খাঁচি)')
+                    ->disabled()
+                    ->afterStateHydrated(function ($component, $record) {
+                        $component->state($record->stock?->quantity ?? 0);
+                    }),
             ]);
     }
 
@@ -42,6 +49,11 @@ class ProductResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+
+                TextColumn::make('stock.quantity')
+                    ->sortable()
+                    ->label('বর্তমান স্টক'),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
