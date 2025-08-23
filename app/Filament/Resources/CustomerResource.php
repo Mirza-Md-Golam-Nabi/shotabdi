@@ -32,9 +32,12 @@ class CustomerResource extends Resource
                 TextColumn::make('name')
                     ->label('নাম')
                     ->searchable(),
+                TextColumn::make('balance')
+                    ->label('বর্তমান হিসাব'),
                 TextColumn::make('mobile')
                     ->label('ফোন নাম্বার')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_farmer')
                     ->label('খামারি')
                     ->boolean(),

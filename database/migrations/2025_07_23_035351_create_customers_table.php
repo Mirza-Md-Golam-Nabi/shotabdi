@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255);
             $table->string('mobile', 15)->nullable();
-            $table->decimal('balance', 12, 2)->nullable()->default(0);
+            $table->mediumInteger('balance')->nullable()->default(0);
             $table->char('is_farmer', 1)->nullable()->default(0);
             $table->string('address', 255)->nullable();
             $table->timestamps();
