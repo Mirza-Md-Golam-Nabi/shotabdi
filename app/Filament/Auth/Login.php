@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Filament\Auth;
 
-use Filament\Forms\Form;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Pages\Auth\Login as BaseAuth;
 use Illuminate\Validation\ValidationException;
 
@@ -21,10 +20,17 @@ class Login extends BaseAuth
             ->statePath('data');
     }
 
+    protected function getPasswordFormComponent(): TextInput
+    {
+        return parent::getPasswordFormComponent()
+            ->numeric();
+    }
+
     protected function getLoginFormComponent(): Component
     {
         return TextInput::make('mobile')
             ->label('Mobile Number')
+            ->numeric()
             ->required()
             ->rule('regex:/^01[0-9]{9}$/')
             ->helperText('শুধু ইংরেজি ডিজিট ব্যবহার করুন, যেমন: 017XXXXXXXX')
@@ -38,7 +44,7 @@ class Login extends BaseAuth
     protected function getCredentialsFromFormData(array $data): array
     {
         return [
-            'mobile' => $data['mobile'],
+            'mobile'   => $data['mobile'],
             'password' => $data['password'],
         ];
     }

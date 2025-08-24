@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Models;
 
-use App\Models\StockIn;
 use App\Enums\FarmerEnum;
+use App\Models\StockIn;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
@@ -17,6 +16,11 @@ class Customer extends Model
     protected $casts = [
         'is_farmer' => FarmerEnum::class,
     ];
+
+    public function getIsFarmerBoolAttribute(): bool
+    {
+        return $this->is_farmer->value;
+    }
 
     public function transactions(): HasMany
     {

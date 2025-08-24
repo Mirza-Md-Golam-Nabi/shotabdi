@@ -19,7 +19,12 @@ class Product extends Model
 
     public function stock(): HasOne
     {
-        return $this->hasOne(Stock::class, 'product_id', 'id');
+        return $this->hasOne(Stock::class, 'product_id', 'id')
+            ->withDefault([
+                'quantity'  => 0,
+                'available' => 0,
+            ]);
+
     }
 
     public function stockIns(): HasMany

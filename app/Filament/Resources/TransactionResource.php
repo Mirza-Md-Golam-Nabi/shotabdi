@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Models\Customer;
 use App\Models\Transaction;
@@ -38,25 +39,7 @@ class TransactionResource extends Resource
                             ->searchable()
                         // ->preload()
                             ->columnSpan('full')
-                            ->createOptionForm([
-                                TextInput::make('name')
-                                    ->label('নাম')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('mobile')
-                                    ->label('ফোন নাম্বার')
-                                    ->nullable()
-                                    ->length(11)
-                                    ->rule('regex:/^01[0-9]{9}$/')
-                                    ->helperText('শুধু ইংরেজি ডিজিট ব্যবহার করুন, যেমন: 017XXXXXXXX')
-                                    ->validationMessages([
-                                        'length' => 'ফোন নাম্বার অবশ্যই ১১ সংখ্যার হতে হবে।',
-                                        'regex'  => 'ফোন নাম্বার অবশ্যই ইংরেজিতে ১১ ডিজিটের এবং ০১ দিয়ে শুরু হতে হবে।',
-                                    ]),
-                                TextInput::make('address')
-                                    ->label('ঠিকানা')
-                                    ->maxLength(255),
-                            ])
+                            ->createOptionForm(CustomerForm::fields())
                             ->createOptionUsing(function (array $data) {
                                 $customer = Customer::create($data);
                                 return $customer->getKey();

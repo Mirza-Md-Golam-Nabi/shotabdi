@@ -38,7 +38,7 @@ class CustomerResource extends Resource
                     ->label('ফোন নাম্বার')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_farmer')
+                IconColumn::make('is_farmer_bool')
                     ->label('খামারি')
                     ->boolean(),
                 TextColumn::make('address')

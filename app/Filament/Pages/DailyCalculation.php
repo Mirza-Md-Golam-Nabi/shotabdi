@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Pages;
 
+use App\Enums\CashFlowEnum;
 use App\Models\Distribute;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -48,13 +49,15 @@ class DailyCalculation extends Page
 
         // Load all transaction data
         $trans = Transaction::with('customer:id,name')
-            ->select('id', 'customer_id', 'type', 'amount')
+            ->select('id', 'customer_id', 'cash_flow_id', 'amount')
             ->where('date', $date_select)
+            ->whereNull('stock_in_id')
+            ->whereNull('stock_out_id')
             ->get();
 
         // Deposits and expenses have been separated.
-        $deposits = $trans->where('type', 'deposit')->values();
-        $expenses = $trans->where('type', 'expense')->values();
+        $deposits = $trans->where('cash_flow_id', CashFlowEnum::DEPOSIT)->values();
+        $expenses = $trans->where('cash_flow_id', CashFlowEnum::EXPENSE)->values();
 
         // Store total calculation
         $deposit_sum = $deposits->sum('amount');

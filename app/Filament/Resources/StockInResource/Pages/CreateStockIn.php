@@ -3,6 +3,7 @@ namespace App\Filament\Resources\StockInResource\Pages;
 
 use App\Enums\AvailableEnum;
 use App\Filament\Resources\StockInResource;
+use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Models\Customer;
 use App\Models\Stock;
@@ -35,9 +36,9 @@ class CreateStockIn extends CreateRecord
             $this->updateOrCreateStock($stock);
 
             if ($this->is_farmer($stock['customer_id'])) {
-                $this->updateBalance($stock['customer_id'], $balance, 'subtract');
+                $this->updateCustomerBalance($stock['customer_id'], $balance, 'subtract');
             } else {
-                $this->updateBalance($stock['customer_id'], $balance, 'add');
+                $this->updateCustomerBalance($stock['customer_id'], $balance, 'add');
             }
 
             $this->saveStockInTransaction($stock, $amount, $stockIn);
@@ -63,17 +64,9 @@ class CreateStockIn extends CreateRecord
         return Customer::where('id', $customer_id)->value('is_farmer')->value;
     }
 
-    protected function updateBalance($customer_id, $balance, $operation = 'add')
+    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
     {
-        $customer = Customer::find($customer_id);
-
-        if (! $customer) {
-            return;
-        }
-
-        $operation === 'subtract'
-        ? $customer->decrement('balance', $balance)
-        : $customer->increment('balance', $balance);
+        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 
     protected function amount(array $data)

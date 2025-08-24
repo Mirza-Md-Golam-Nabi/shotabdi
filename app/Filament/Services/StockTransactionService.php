@@ -29,19 +29,17 @@ class StockTransactionService
                 $stock['deposit'],
                 CashFlowEnum::DEPOSIT,
                 TransactionTypeEnum::DEPOSIT,
-                stock_in_id: $stockInId
             );
         }
 
-        // Cashback
+        // Expense
         if (! empty($stock['cashback'])) {
             $this->createTransaction(
                 $stock['customer_id'],
                 $date,
                 $stock['cashback'],
                 CashFlowEnum::EXPENSE,
-                TransactionTypeEnum::CASHBACK,
-                stock_in_id: $stockInId
+                TransactionTypeEnum::EXPENSE,
             );
         }
     }
@@ -68,7 +66,6 @@ class StockTransactionService
                 $stock['deposit'],
                 CashFlowEnum::DEPOSIT,
                 TransactionTypeEnum::DEPOSIT,
-                stock_out_id: $stockOutId
             );
         }
     }

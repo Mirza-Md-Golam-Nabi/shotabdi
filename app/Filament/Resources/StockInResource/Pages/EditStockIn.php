@@ -3,6 +3,7 @@ namespace App\Filament\Resources\StockInResource\Pages;
 
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Resources\StockInResource;
+use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Filament\Traits\HasAmountCalculation;
 use App\Models\Customer;
@@ -267,9 +268,9 @@ class EditStockIn extends EditRecord
         $balance = $amount + $deposit - $cashback;
 
         if ($this->is_farmer($rec->customer_id)) {
-            $this->updateBalance($rec->customer_id, $balance, 'add');
+            $this->updateCustomerBalance($rec->customer_id, $balance, 'add');
         } else {
-            $this->updateBalance($rec->customer_id, $balance, 'subtract');
+            $this->updateCustomerBalance($rec->customer_id, $balance, 'subtract');
         }
 
         if ($rec->is_available == 1) {
@@ -302,16 +303,8 @@ class EditStockIn extends EditRecord
         return Customer::find($customer_id)?->value('is_farmer');
     }
 
-    protected function updateBalance($customer_id, $balance, $operation = 'add')
+    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')
     {
-        $customer = Customer::find($customer_id);
-
-        if (! $customer) {
-            return;
-        }
-
-        $operation === 'subtract'
-        ? $customer->decrement('balance', $balance)
-        : $customer->increment('balance', $balance);
+        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 }

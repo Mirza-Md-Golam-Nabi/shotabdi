@@ -9,6 +9,7 @@ use App\Enums\AvailableEnum;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\StockOutResource;
+use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 
 class CreateStockOut extends CreateRecord
@@ -59,15 +60,9 @@ class CreateStockOut extends CreateRecord
             ->exists();
     }
 
-    protected function updateCustomerBalance($customer_id, $balance)
+    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
     {
-        $customer = Customer::find($customer_id);
-
-        if (! $customer) {
-            return;
-        }
-
-        $customer->increment('balance', $balance);
+        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 
     protected function amount(array $data)

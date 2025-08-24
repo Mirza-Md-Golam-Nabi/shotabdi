@@ -44,9 +44,10 @@
                         <tr class="{{ $loop->odd ? $odd : $even }} border-b border-gray-300">
                             <td class="border border-gray-300 px-1 py-1">
                                 @if ($tran['deposit_id'])
-                                    <x-filament::button icon="heroicon-o-pencil" size="sm" color="success"
-                                        tag="a"
-                                        href="{{ route('filament.admin.resources.transactions.edit', ['record' => $tran['deposit_id']]) }}" />
+                                    <x-filament::icon-button icon="heroicon-m-pencil-square" color="success"
+                                        icon-size="sm" :href="route('filament.admin.resources.transactions.edit', [
+                                            'record' => $tran['deposit_id'],
+                                        ])" tag="a" class="inline-flex" />
                                 @endif
                                 {{ $tran['deposit_name'] }}
                             </td>
@@ -55,9 +56,10 @@
                             </td>
                             <td class="border border-gray-300 px-1 py-1">
                                 @if ($tran['expense_id'])
-                                    <x-filament::button icon="heroicon-o-pencil" size="sm" color="success"
-                                        tag="a"
-                                        href="{{ route('filament.admin.resources.transactions.edit', ['record' => $tran['expense_id']]) }}" />
+                                    <x-filament::icon-button icon="heroicon-m-pencil-square" color="success"
+                                        icon-size="sm" :href="route('filament.admin.resources.transactions.edit', [
+                                            'record' => $tran['expense_id'],
+                                        ])" tag="a" class="inline-flex" />
                                 @endif
                                 {{ $tran['expense_name'] }}
                             </td>

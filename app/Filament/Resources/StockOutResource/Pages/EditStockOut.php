@@ -1,23 +1,24 @@
 <?php
 namespace App\Filament\Resources\StockOutResource\Pages;
 
+use App\Models\Stock;
+use Filament\Actions;
+use App\Models\Product;
+use App\Models\StockIn;
+use App\Models\Customer;
+use Filament\Forms\Form;
+use App\Models\Transaction;
 use App\Enums\AvailableEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Pages\EditRecord;
+use Filament\Forms\Components\DatePicker;
+use App\Filament\Services\CustomerService;
 use App\Filament\Resources\StockOutResource;
 use App\Filament\Traits\HandlesTransactions;
 use App\Filament\Traits\HasAmountCalculation;
-use App\Models\Customer;
-use App\Models\Product;
-use App\Models\Stock;
-use App\Models\StockIn;
-use App\Models\Transaction;
-use Filament\Actions;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Pages\EditRecord;
 
 class EditStockOut extends EditRecord
 {
@@ -299,14 +300,6 @@ class EditStockOut extends EditRecord
 
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')
     {
-        $customer = Customer::find($customer_id);
-
-        if (! $customer) {
-            return;
-        }
-
-        $operation === 'subtract'
-        ? $customer->decrement('balance', $balance)
-        : $customer->increment('balance', $balance);
+        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 }

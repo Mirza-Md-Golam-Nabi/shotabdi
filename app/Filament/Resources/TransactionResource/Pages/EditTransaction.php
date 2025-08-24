@@ -1,16 +1,18 @@
 <?php
-
 namespace App\Filament\Resources\TransactionResource\Pages;
 
-use Filament\Actions;
-use App\Models\Customer;
-use Filament\Forms\Form;
+use App\Enums\CashFlowEnum;
 use App\Enums\TransactionTypeEnum;
+use App\Filament\Forms\CustomerForm;
+use App\Filament\Resources\TransactionResource;
+use App\Filament\Services\CustomerService;
+use App\Models\Customer;
+use Filament\Actions;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Forms\Components\DatePicker;
-use App\Filament\Resources\TransactionResource;
 
 class EditTransaction extends EditRecord
 {
@@ -25,6 +27,52 @@ class EditTransaction extends EditRecord
         $this->incoming_date = $this->record->date;
     }
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->transactionRollback();
+
+        if ($data['cash_flow_id'] == CashFlowEnum::DEPOSIT->value) {
+            $data['tran_type_id'] = TransactionTypeEnum::DEPOSIT->value;
+        }
+
+        if ($data['cash_flow_id'] == CashFlowEnum::EXPENSE->value) {
+            $data['tran_type_id'] = TransactionTypeEnum::EXPENSE->value;
+        }
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $form_data = $this->form->getState();
+
+        $customer_id = $form_data['customer_id'];
+        $balance     = $form_data['amount'];
+
+        if (CashFlowEnum::DEPOSIT == $form_data['cash_flow_id']) {
+            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+        }
+
+        if (CashFlowEnum::EXPENSE == $form_data['cash_flow_id']) {
+            $this->updateCustomerBalance($customer_id, $balance, 'add');
+        }
+    }
+
+    protected function transactionRollback(): void
+    {
+        $rec         = $this->record; // transactions table data
+        $customer_id = $rec->customer_id;
+        $balance     = $rec->amount;
+
+        if (CashFlowEnum::DEPOSIT == $rec->cash_flow_id) {
+            $this->updateCustomerBalance($customer_id, $balance, 'add');
+        }
+
+        if (CashFlowEnum::EXPENSE == $rec->cash_flow_id) {
+            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+        }
+    }
+
     public function form(Form $form): Form
     {
         return $form
@@ -36,40 +84,20 @@ class EditTransaction extends EditRecord
 
                 Select::make('customer_id')
                     ->label('কাস্টমার নাম')
-                    // ->relationship('customer', 'name')
+                // ->relationship('customer', 'name')
                     ->options(Customer::pluck('name', 'id'))
                     ->required()
                     ->searchable()
-                    // ->preload()
-                    ->createOptionForm([
-                        TextInput::make('name')
-                            ->label('নাম')
-                            ->required()
-                            ->maxLength(255),
-
-                        TextInput::make('mobile')
-                            ->label('ফোন নাম্বার')
-                            ->nullable()
-                            ->length(11)
-                            ->rule('regex:/^01[0-9]{9}$/')
-                            ->helperText('শুধু ইংরেজি ডিজিট ব্যবহার করুন, যেমন: 017XXXXXXXX')
-                            ->validationMessages([
-                                'length' => 'ফোন নাম্বার অবশ্যই ১১ সংখ্যার হতে হবে।',
-                                'regex' => 'ফোন নাম্বার অবশ্যই ইংরেজিতে ১১ ডিজিটের এবং ০১ দিয়ে শুরু হতে হবে।',
-                            ]),
-
-                        TextInput::make('address')
-                            ->label('ঠিকানা')
-                            ->maxLength(255),
-                    ])
+                // ->preload()
+                    ->createOptionForm(CustomerForm::fields())
                     ->createOptionUsing(function (array $data) {
                         $customer = Customer::create($data);
                         return $customer->getKey();
                     }),
 
-                Select::make('type')
-                    ->label('ধরন')
-                    ->options(TransactionTypeEnum::options())
+                Select::make('cash_flow_id')
+                    ->label('ধরণ')
+                    ->options(CashFlowEnum::options())
                     ->required(),
 
                 TextInput::make('amount')
@@ -82,11 +110,7 @@ class EditTransaction extends EditRecord
     {
         return [
             Actions\DeleteAction::make()
-                ->after(function () {
-                    return redirect()->route('filament.admin.pages.daily-calculation', [
-                        'date' => $this->incoming_date
-                    ]);
-                }),
+                ->visible(false),
         ];
     }
 
@@ -95,5 +119,10 @@ class EditTransaction extends EditRecord
         return route('filament.admin.pages.daily-calculation', [
             'date' => $this->incoming_date,
         ]);
+    }
+
+    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
+    {
+        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 }

@@ -2,10 +2,10 @@
 namespace App\Enums;
 
 enum TransactionTypeEnum: int {
-    case FEED     = 1;
-    case EGG      = 2;
-    case DEPOSIT  = 3;
-    case CASHBACK = 4;
+    case FEED    = 1;
+    case EGG     = 2;
+    case DEPOSIT = 3;
+    case EXPENSE = 4;
 
     public function description(): string
     {
@@ -13,7 +13,7 @@ enum TransactionTypeEnum: int {
             self::FEED => 'Feed',
             self::EGG => 'Egg',
             self::DEPOSIT => 'Deposit',
-            self::CASHBACK => 'Cashback',
+            self::EXPENSE => 'Expense',
         };
     }
 }
