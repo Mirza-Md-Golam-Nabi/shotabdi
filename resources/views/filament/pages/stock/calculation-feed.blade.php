@@ -1,16 +1,17 @@
 <x-filament-panels::page>
+
     <div>
         <div class="flex justify-between">
             <div>
                 <x-filament::button icon="heroicon-o-arrow-left" size="sm" color="danger" tag="a"
-                    href="{{ route('filament.admin.pages.stock-in-calculation-egg', ['date' => $date['prev_date']]) }}">
+                    href="{{ route($route['current'], ['date' => $date['prev_date']]) }}">
 
                 </x-filament::button>
             </div>
-            <div class="text-sm font-bold text-center">দৈনিক হিসাব (ডিম)</div>
+            <div class="text-sm font-bold text-center">দৈনিক হিসাব (ফিড)</div>
             <div>
                 <x-filament::button icon="heroicon-o-arrow-right" size="sm" color="success" tag="a"
-                    href="{{ route('filament.admin.pages.stock-in-calculation-egg', ['date' => $date['next_date']]) }}">
+                    href="{{ route($route['current'], ['date' => $date['next_date']]) }}">
 
                 </x-filament::button>
             </div>
@@ -30,9 +31,9 @@
                     </tr>
                     <tr class="text-center">
                         <th class="border border-gray-300 px-4 py-1">বিবরণ</th>
-                        <th class="border border-gray-300 px-4 py-1">খাঁচি</th>
+                        <th class="border border-gray-300 px-4 py-1">বস্তা</th>
                         <th class="border border-gray-300 px-4 py-1">বিবরণ</th>
-                        <th class="border border-gray-300 px-4 py-1">টাকা</th>
+                        <th class="border border-gray-300 px-4 py-1">বস্তা</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,31 +41,31 @@
                         $odd = 'bg-white dark:bg-gray-800';
                         $even = 'bg-gray-50 dark:bg-gray-900';
                     @endphp
-                    @forelse ($transactions as $tran)
+                    @forelse ($stocks as $stock)
                         <tr class="{{ $loop->odd ? $odd : $even }} border-b border-gray-300">
                             <td class="border border-gray-300 px-1 py-1">
-                                @if ($tran['stock_in_id'])
-                                    <x-filament::icon-button icon="heroicon-m-pencil-square" color="success" icon-size="sm"
-                                        :href="route('filament.admin.resources.stock-ins.edit', [
-                                            'record' => $tran['stock_in_id'],
+                                @if ($stock['stock_in_id'])
+                                    <x-filament::icon-button icon="heroicon-m-pencil-square" color="success"
+                                        icon-size="sm" :href="route($route['stock_in_edit'], [
+                                            'record' => $stock['stock_in_id'],
                                         ])" tag="a" class="inline-flex" />
                                 @endif
-                                {{ $tran['stock_in_name'] }}
+                                {{ $stock['stock_in_name'] }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
-                                {{ $tran['stock_in_quantity'] }}
+                                {{ $stock['stock_in_quantity'] }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1">
-                                @if ($tran['tran_stock_in_id'])
-                                    <x-filament::icon-button icon="heroicon-m-pencil-square" color="success" icon-size="sm"
-                                        :href="route('filament.admin.resources.stock-ins.edit', [
-                                            'record' => $tran['tran_stock_in_id'],
+                                @if ($stock['stock_out_id'])
+                                    <x-filament::icon-button icon="heroicon-m-pencil-square" color="success"
+                                        icon-size="sm" :href="route($route['stock_out_edit'], [
+                                            'record' => $stock['stock_out_id'],
                                         ])" tag="a" class="inline-flex" />
                                 @endif
-                                {{ $tran['tran_name'] }}
+                                {{ $stock['stock_out_name'] }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
-                                {{ $tran['tran_amount'] }}
+                                {{ $stock['stock_out_quantity'] }}
                             </td>
                         </tr>
                     @empty
@@ -74,19 +75,19 @@
                             </td>
                         </tr>
                     @endforelse
-                    @if (!empty($transactions))
+                    @if (!empty($stocks))
                         <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-300 font-black">
                             <td class="border border-gray-300 px-1 py-1 text-center">
                                 {{ __('মোট') }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
-                                {{ $sum['total_quantity'] }}
+                                {{ $sum['stock_in_total'] }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-center">
                                 {{ __('মোট') }}
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
-                                {{ $sum['total_amount'] }}
+                                {{ $sum['stock_out_total'] }}
                             </td>
                         </tr>
                     @endif
@@ -95,4 +96,5 @@
         </div>
 
     </div>
+
 </x-filament-panels::page>

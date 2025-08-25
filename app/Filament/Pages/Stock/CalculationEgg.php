@@ -1,32 +1,44 @@
 <?php
-namespace App\Filament\Pages\StockOut;
+namespace App\Filament\Pages\Stock;
 
-use App\Enums\CashFlowEnum;
+use App\Models\Stock;
+use App\Models\StockIn;
 use App\Models\StockOut;
-use App\Models\Transaction;
 use Carbon\Carbon;
 use Filament\Pages\Page;
 
-class CalculationFeed extends Page
+class CalculationEgg extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.stock-out.calculation-feed';
+    protected static string $view = 'filament.pages.stock.calculation-egg';
 
-    protected static ?string $slug = 'stock-out-calculation-feed';
+    protected static ?string $slug = 'stock-calculation-egg';
 
     protected static bool $shouldRegisterNavigation = false;
 
     protected ?string $heading = '';
 
-    public array $transactions = [];
+    public array $stocks = [];
 
     public array $sum = [];
 
     public array $date = [];
 
+    public array $route = [];
+
+    public ?int $current_stock = null;
+
     public function mount()
     {
+        $this->route = [
+            'current' => 'filament.admin.pages.stock-calculation-egg',
+            'stock_in_edit' => 'filament.admin.resources.stock-ins.edit',
+            'stock_out_edit' => 'filament.admin.resources.stock-outs.edit',
+        ];
+
+        $this->current_stock = Stock::where('product_id', 1)->value('quantity');
+
         $date_select = request()->query('date', now()->toDateString());
 
         $date_parse = Carbon::parse($date_select);
@@ -38,44 +50,40 @@ class CalculationFeed extends Page
             'bn_day'      => $date_parse->locale('bn')->translatedFormat('l'),
         ];
 
-        $stock_outs = StockOut::with('customer:id,name')
+        $stock_ins = StockIn::with('customer:id,name')
             ->select('id', 'customer_id', 'quantity')
-            ->where('product_id', '!=', 1)
+            ->where('product_id', 1)
             ->where('date', $date_select)
             ->get();
 
-        $stock_out_id_list = $stock_outs->pluck('id')->toArray();
-
-        // Load all transaction data
-        $transaction = Transaction::with('customer:id,name')
-            ->select('id', 'customer_id', 'stock_out_id', 'cash_flow_id', 'amount')
+        $stock_outs = StockOut::with('customer:id,name')
+            ->select('id', 'customer_id', 'quantity')
+            ->where('product_id', 1)
             ->where('date', $date_select)
-            ->where('cash_flow_id', CashFlowEnum::DEPOSIT)
-            ->whereIn('stock_out_id', $stock_out_id_list)
             ->get();
 
         // sum of data
         $this->sum = [
-            'total_quantity' => $stock_outs->sum('quantity'),
-            'total_amount'   => $transaction->sum('amount'),
+            'stock_in_total'  => $stock_ins->sum('quantity'),
+            'stock_out_total' => $stock_outs->sum('quantity'),
         ];
 
         // convert into array
+        $stock_in  = $stock_ins->toArray();
         $stock_out = $stock_outs->toArray();
-        $trans     = $transaction->toArray();
 
-        $maxCount = max(count($stock_out), count($trans));
+        $maxCount = max(count($stock_in), count($stock_out));
 
         if ($maxCount) {
-            $this->transactions = collect(range(0, $maxCount - 1))
-                ->map(function ($i) use ($stock_out, $trans) {
+            $this->stocks = collect(range(0, $maxCount - 1))
+                ->map(function ($i) use ($stock_in, $stock_out) {
                     return [
+                        'stock_in_id'        => $stock_in[$i]['id'] ?? null,
+                        'stock_in_name'      => $stock_in[$i]['customer']['name'] ?? null,
+                        'stock_in_quantity'  => $stock_in[$i]['quantity'] ?? null,
                         'stock_out_id'       => $stock_out[$i]['id'] ?? null,
                         'stock_out_name'     => $stock_out[$i]['customer']['name'] ?? null,
                         'stock_out_quantity' => $stock_out[$i]['quantity'] ?? null,
-                        'tran_stock_out_id'  => $trans[$i]['stock_out_id'] ?? null,
-                        'tran_name'          => $trans[$i]['customer']['name'] ?? null,
-                        'tran_amount'        => numberFormat($trans, $i),
                     ];
                 })->toArray();
         }
