@@ -5,8 +5,6 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Seeders\CustomerSeeder;
 use Database\Seeders\ProductSeeder;
-use Database\Seeders\StockInSeeder;
-use Database\Seeders\TransactionSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,6 +26,5 @@ class DatabaseSeeder extends Seeder
 
         $this->call(CustomerSeeder::class);
         $this->call(ProductSeeder::class);
-        // $this->call(StockInSeeder::class);
     }
 }

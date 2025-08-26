@@ -2,6 +2,7 @@
 namespace App\Filament\Resources\TransactionResource\Pages;
 
 use App\Enums\CashFlowEnum;
+use App\Enums\CustomerEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\TransactionResource;
@@ -50,11 +51,19 @@ class EditTransaction extends EditRecord
         $balance     = $form_data['amount'];
 
         if (CashFlowEnum::DEPOSIT == $form_data['cash_flow_id']) {
-            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+            if ($this->is_egg_seller($customer_id)) {
+                $this->updateCustomerBalance($customer_id, $balance, 'add');
+            } else {
+                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+            }
         }
 
         if (CashFlowEnum::EXPENSE == $form_data['cash_flow_id']) {
-            $this->updateCustomerBalance($customer_id, $balance, 'add');
+            if ($this->is_egg_seller($customer_id)) {
+                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+            } else {
+                $this->updateCustomerBalance($customer_id, $balance, 'add');
+            }
         }
     }
 
@@ -65,12 +74,25 @@ class EditTransaction extends EditRecord
         $balance     = $rec->amount;
 
         if (CashFlowEnum::DEPOSIT == $rec->cash_flow_id) {
-            $this->updateCustomerBalance($customer_id, $balance, 'add');
+            if ($this->is_egg_seller($customer_id)) {
+                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+            } else {
+                $this->updateCustomerBalance($customer_id, $balance, 'add');
+            }
         }
 
         if (CashFlowEnum::EXPENSE == $rec->cash_flow_id) {
-            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+            if ($this->is_egg_seller($customer_id)) {
+                $this->updateCustomerBalance($customer_id, $balance, 'add');
+            } else {
+                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+            }
         }
+    }
+
+    public function is_egg_seller($customer_id): bool
+    {
+        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::EGG_SELLER;
     }
 
     public function form(Form $form): Form

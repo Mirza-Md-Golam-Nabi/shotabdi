@@ -106,7 +106,7 @@ class StockOutResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockOutUpdateAmount($set, $get);
                         }),
 
@@ -116,7 +116,7 @@ class StockOutResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockOutUpdateAmount($set, $get);
                         }),
 
@@ -125,7 +125,7 @@ class StockOutResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockOutUpdateAmount($set, $get);
                         }),
 
@@ -134,7 +134,7 @@ class StockOutResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockOutUpdateAmount($set, $get);
                         }),
 

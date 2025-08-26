@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources\StockInResource\Pages;
 
+use App\Enums\CustomerEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Resources\StockInResource;
 use App\Filament\Services\CustomerService;
@@ -63,11 +64,10 @@ class EditStockIn extends EditRecord
         $amount  = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
         $balance = $amount + $form_data['deposit'] - $form_data['cashback'];
 
-        if ($form_data['customer_id']) {
-            Customer::where('id', $form_data['customer_id'])
-                ->update([
-                    'balance' => DB::raw('balance + ' . $balance),
-                ]);
+        if ($this->is_farmer($form_data['customer_id'])) {
+            $this->updateCustomerBalance($form_data['customer_id'], $balance, 'subtract');
+        } else {
+            $this->updateCustomerBalance($form_data['customer_id'], $balance, 'add');
         }
 
         $st = Stock::where('product_id', $form_data['product_id'])->first();
@@ -215,9 +215,7 @@ class EditStockIn extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return route('filament.admin.pages.stock-in-calculation-egg', [
-            'date' => $this->date,
-        ]);
+        return url()->previous();
     }
 
     /**
@@ -236,7 +234,7 @@ class EditStockIn extends EditRecord
             'amount'
         )
             ->where('stock_in_id', $this->record->id ?? 0)
-            ->whereIn('tran_type_id', [TransactionTypeEnum::DEPOSIT, TransactionTypeEnum::CASHBACK])
+            ->whereIn('tran_type_id', [TransactionTypeEnum::DEPOSIT, TransactionTypeEnum::EXPENSE])
             ->get();
 
         $deposit  = 0;
@@ -247,7 +245,7 @@ class EditStockIn extends EditRecord
                 $deposit = $tran->amount;
             }
 
-            if ($tran->tran_type_id == TransactionTypeEnum::CASHBACK) {
+            if ($tran->tran_type_id == TransactionTypeEnum::EXPENSE) {
                 $cashback = $tran->amount;
             }
         }
@@ -300,7 +298,7 @@ class EditStockIn extends EditRecord
 
     protected function is_farmer($customer_id): bool
     {
-        return Customer::find($customer_id)?->value('is_farmer');
+        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::FARMER;
     }
 
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')

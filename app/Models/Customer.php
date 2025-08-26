@@ -1,7 +1,7 @@
 <?php
 namespace App\Models;
 
-use App\Enums\FarmerEnum;
+use App\Enums\CustomerEnum;
 use App\Models\StockIn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,15 +11,15 @@ class Customer extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'mobile', 'address', 'balance', 'is_farmer'];
+    protected $fillable = ['name', 'mobile', 'address', 'balance', 'type'];
 
     protected $casts = [
-        'is_farmer' => FarmerEnum::class,
+        'type' => CustomerEnum::class,
     ];
 
-    public function getIsFarmerBoolAttribute(): bool
+    public function getCustomerTypeAttribute(): int
     {
-        return $this->is_farmer->value;
+        return $this->type->value;
     }
 
     public function transactions(): HasMany

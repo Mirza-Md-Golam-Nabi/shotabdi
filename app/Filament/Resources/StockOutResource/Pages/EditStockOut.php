@@ -1,24 +1,25 @@
 <?php
 namespace App\Filament\Resources\StockOutResource\Pages;
 
-use App\Models\Stock;
-use Filament\Actions;
-use App\Models\Product;
-use App\Models\StockIn;
-use App\Models\Customer;
-use Filament\Forms\Form;
-use App\Models\Transaction;
 use App\Enums\AvailableEnum;
+use App\Enums\CustomerEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Pages\EditRecord;
-use Filament\Forms\Components\DatePicker;
-use App\Filament\Services\CustomerService;
 use App\Filament\Resources\StockOutResource;
+use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Filament\Traits\HasAmountCalculation;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Stock;
+use App\Models\StockIn;
+use App\Models\Transaction;
+use Filament\Actions;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Pages\EditRecord;
 
 class EditStockOut extends EditRecord
 {
@@ -60,10 +61,15 @@ class EditStockOut extends EditRecord
     {
         $form_data = $this->form->getState();
 
-        $amount  = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
-        $balance = $amount - $form_data['deposit'];
+        $amount      = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
+        $balance     = $amount - $form_data['deposit'];
+        $customer_id = $form_data['customer_id'];
 
-        $this->updateCustomerBalance($form_data['customer_id'], $balance, 'add');
+        if ($this->is_egg_seller($customer_id)) {
+            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+        } else {
+            $this->updateCustomerBalance($customer_id, $balance, 'add');
+        }
 
         $this->updateStock($form_data);
 
@@ -241,18 +247,23 @@ class EditStockOut extends EditRecord
 
     protected function stockOutRollback()
     {
-        $rec        = $this->record; // stock_outs table data
-        $rate       = $rec->rate;
-        $quantity   = $rec->quantity;
-        $discount   = $rec->discount;
-        $product_id = $rec->product_id;
+        $rec         = $this->record; // stock_outs table data
+        $rate        = $rec->rate;
+        $quantity    = $rec->quantity;
+        $discount    = $rec->discount;
+        $product_id  = $rec->product_id;
+        $customer_id = $rec->customer_id;
 
         $deposit = $this->tranBalance();
 
         $amount  = ($rate * $quantity) - $discount;
         $balance = $amount - $deposit;
 
-        $this->updateCustomerBalance($rec->customer_id, $balance, 'subtract');
+        if ($this->is_egg_seller($customer_id)) {
+            $this->updateCustomerBalance($customer_id, $balance, 'add');
+        } else {
+            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
+        }
 
         $stock = Stock::where('product_id', $product_id)->first();
 
@@ -296,6 +307,11 @@ class EditStockOut extends EditRecord
 
         Transaction::where('stock_out_id', $rec->id)
             ->delete();
+    }
+
+    public function is_egg_seller($customer_id): bool
+    {
+        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::EGG_SELLER;
     }
 
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')

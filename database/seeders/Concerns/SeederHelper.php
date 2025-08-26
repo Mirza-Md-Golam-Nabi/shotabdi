@@ -1,6 +1,8 @@
 <?php
 namespace Database\Seeders\Concerns;
 
+use App\Enums\CustomerEnum;
+
 trait SeederHelper
 {
     protected function customerList(): array
@@ -9,7 +11,7 @@ trait SeederHelper
             [
                 'name'   => 'কাউন এগ্রো ইন্ডা লিঃ',
                 'mobile' => '01712457896',
-                'is_farmer' => 0,
+                'type'   => CustomerEnum::COMPANY,
             ],
             [
                 'name'   => 'হাসিব ভাই',

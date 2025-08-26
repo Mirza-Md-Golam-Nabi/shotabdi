@@ -5,11 +5,12 @@ use App\Models\Stock;
 use App\Models\StockIn;
 use App\Models\Customer;
 use App\Models\StockOut;
+use App\Enums\CustomerEnum;
 use App\Enums\AvailableEnum;
 use Illuminate\Database\Eloquent\Model;
+use App\Filament\Services\CustomerService;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\StockOutResource;
-use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 
 class CreateStockOut extends CreateRecord
@@ -40,12 +41,21 @@ class CreateStockOut extends CreateRecord
 
             $this->updateStock($stock);
 
-            $this->updateCustomerBalance($stock['customer_id'], $balance, 'add');
+            if ($this->is_egg_seller($stock['customer_id'])) {
+                $this->updateCustomerBalance($stock['customer_id'], $balance, 'subtract');
+            } else {
+                $this->updateCustomerBalance($stock['customer_id'], $balance, 'add');
+            }
 
             $this->saveStockOutTransaction($stock, $amount, $stockOut);
         }
 
         return $this->stock_out;
+    }
+
+    public function is_egg_seller($customer_id):bool
+    {
+        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::EGG_SELLER;
     }
 
     protected function getRedirectUrl(): string

@@ -1,7 +1,7 @@
 <?php
 namespace App\Filament\Forms;
 
-use App\Enums\FarmerEnum;
+use App\Enums\CustomerEnum;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 
@@ -42,13 +42,12 @@ class CustomerForm
                 ->label('ঠিকানা')
                 ->maxLength(255),
 
-            Radio::make('is_farmer')
-                ->label('খামারি')
-                ->options(FarmerEnum::options())
+            Radio::make('type')
+                ->label('কাস্টমার ধরণ')
+                ->options(CustomerEnum::options())
                 ->inline()
                 ->inlineLabel(false)
-                ->default('0'),
-
+                ->default(CustomerEnum::NORMAL),
         ];
     }
 }

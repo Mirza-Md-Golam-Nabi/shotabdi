@@ -1,13 +1,13 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Enums\CustomerEnum;
 use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,9 +38,11 @@ class CustomerResource extends Resource
                     ->label('ফোন নাম্বার')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_farmer_bool')
-                    ->label('খামারি')
-                    ->boolean(),
+                TextColumn::make('type')
+                    ->label('ধরণ')
+                    ->badge()
+                    ->formatStateUsing(fn(CustomerEnum $state) => $state->label())
+                    ->color(fn (CustomerEnum $state) => $state->color()),
                 TextColumn::make('address')
                     ->label('ঠিকানা')
                     ->searchable()

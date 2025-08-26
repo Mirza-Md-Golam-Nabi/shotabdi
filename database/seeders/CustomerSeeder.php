@@ -1,6 +1,7 @@
 <?php
 namespace Database\Seeders;
 
+use App\Enums\CustomerEnum;
 use App\Models\Customer;
 use Database\Seeders\Concerns\SeederHelper;
 use Illuminate\Database\Seeder;
@@ -22,7 +23,9 @@ class CustomerSeeder extends Seeder
                 [
                     'name'      => $customer['name'],
                     'balance'   => 0,
-                    'is_farmer' => $customer['is_farmer'] ?? rand(0, 1),
+                    'type' => $customer['type'] ?? CustomerEnum::cases()[
+                        array_rand(CustomerEnum::cases())
+                    ]->value,
                 ]
             );
         }

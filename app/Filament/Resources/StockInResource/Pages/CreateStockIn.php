@@ -2,6 +2,7 @@
 namespace App\Filament\Resources\StockInResource\Pages;
 
 use App\Enums\AvailableEnum;
+use App\Enums\CustomerEnum;
 use App\Filament\Resources\StockInResource;
 use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
@@ -59,9 +60,9 @@ class CreateStockIn extends CreateRecord
             ->exists();
     }
 
-    public function is_farmer($customer_id): bool
+    public function is_farmer($customer_id)
     {
-        return Customer::where('id', $customer_id)->value('is_farmer')->value;
+        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::FARMER;
     }
 
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void

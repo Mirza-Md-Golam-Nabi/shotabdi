@@ -113,7 +113,7 @@ class StockInResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('rate')
@@ -122,7 +122,7 @@ class StockInResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('discount')
@@ -130,7 +130,7 @@ class StockInResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('deposit')
@@ -138,7 +138,7 @@ class StockInResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('cashback')
@@ -146,7 +146,7 @@ class StockInResource extends Resource
                         ->numeric()
                         ->columnSpan(1)
                         ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                        ->afterStateUpdated(function ($state, $set, $get) {
+                        ->afterStateUpdated(function ($set, $get) {
                             self::stockInUpdateAmount($set, $get);
                         }),
                     TextInput::make('amount')
