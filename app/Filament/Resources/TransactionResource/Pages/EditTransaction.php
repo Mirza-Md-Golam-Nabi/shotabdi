@@ -2,7 +2,6 @@
 namespace App\Filament\Resources\TransactionResource\Pages;
 
 use App\Enums\CashFlowEnum;
-use App\Enums\CustomerEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\TransactionResource;
@@ -56,7 +55,7 @@ class EditTransaction extends EditRecord
         }
 
         if (CashFlowEnum::EXPENSE == $form_data['cash_flow_id']) {
-            $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
+            $operation = Customer::find($customer_id)?->isNormal() ? 'add' : 'subtract';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
     }
@@ -73,7 +72,7 @@ class EditTransaction extends EditRecord
         }
 
         if (CashFlowEnum::EXPENSE == $rec->cash_flow_id) {
-            $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
+            $operation = Customer::find($customer_id)?->isNormal() ? 'subtract' : 'add';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
     }

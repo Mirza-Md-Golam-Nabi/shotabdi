@@ -24,7 +24,6 @@ class Product extends Model
                 'quantity'  => 0,
                 'available' => 0,
             ]);
-
     }
 
     public function stockIns(): HasMany

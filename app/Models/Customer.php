@@ -41,4 +41,9 @@ class Customer extends Model
     {
         return $this->type === CustomerEnum::EGG_SELLER;
     }
+
+    public function isNormal(): bool
+    {
+        return $this->type === CustomerEnum::NORMAL;
+    }
 }
