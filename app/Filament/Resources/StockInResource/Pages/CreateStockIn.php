@@ -31,16 +31,14 @@ class CreateStockIn extends CreateRecord
         foreach ($data['stock_ins'] as $stock) {
             $amount  = $this->amount($stock);
             $balance = $this->balance($stock);
+            $customer_id = $stock['customer_id'];
 
             $this->stock_in = $stockIn = $this->createStockIn($stock);
 
             $this->updateOrCreateStock($stock);
 
-            if ($this->is_farmer($stock['customer_id'])) {
-                $this->updateCustomerBalance($stock['customer_id'], $balance, 'subtract');
-            } else {
-                $this->updateCustomerBalance($stock['customer_id'], $balance, 'add');
-            }
+            $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
+            $this->updateCustomerBalance($customer_id, $balance, $operation);
 
             $this->saveStockInTransaction($stock, $amount, $stockIn);
         }
@@ -60,11 +58,6 @@ class CreateStockIn extends CreateRecord
             ->exists();
     }
 
-    public function is_farmer($customer_id)
-    {
-        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::FARMER;
-    }
-
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
     {
         (new CustomerService())->updateBalance($customer_id, $balance, $operation);
@@ -77,7 +70,7 @@ class CreateStockIn extends CreateRecord
 
     protected function balance(array $data)
     {
-        return ($data['rate'] * $data['quantity']) - $data['discount'] + $data['deposit'] - $data['cashback'];
+        return $this->amount($data) + $data['deposit'] - $data['cashback'];
     }
 
     protected function createStockIn(array $stock): StockIn

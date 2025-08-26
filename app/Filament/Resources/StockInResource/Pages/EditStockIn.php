@@ -63,12 +63,10 @@ class EditStockIn extends EditRecord
 
         $amount  = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
         $balance = $amount + $form_data['deposit'] - $form_data['cashback'];
+        $customer_id = $form_data['customer_id'];
 
-        if ($this->is_farmer($form_data['customer_id'])) {
-            $this->updateCustomerBalance($form_data['customer_id'], $balance, 'subtract');
-        } else {
-            $this->updateCustomerBalance($form_data['customer_id'], $balance, 'add');
-        }
+        $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
+        $this->updateCustomerBalance($customer_id, $balance, $operation);
 
         $st = Stock::where('product_id', $form_data['product_id'])->first();
 
@@ -255,21 +253,19 @@ class EditStockIn extends EditRecord
 
     protected function stockInRollback()
     {
-        $rec      = $this->record;
-        $rate     = $rec->rate;
-        $quantity = $rec->quantity;
-        $discount = $rec->discount;
+        $rec         = $this->record;
+        $rate        = $rec->rate;
+        $quantity    = $rec->quantity;
+        $discount    = $rec->discount;
+        $customer_id = $rec->customer_id;
 
         [$deposit, $cashback] = $this->tranBalance();
 
         $amount  = ($rate * $quantity) - $discount;
         $balance = $amount + $deposit - $cashback;
 
-        if ($this->is_farmer($rec->customer_id)) {
-            $this->updateCustomerBalance($rec->customer_id, $balance, 'add');
-        } else {
-            $this->updateCustomerBalance($rec->customer_id, $balance, 'subtract');
-        }
+        $operation = Customer::find($customer_id)?->isFarmer() ? 'add' : 'subtract';
+        $this->updateCustomerBalance($customer_id, $balance, $operation);
 
         if ($rec->is_available == 1) {
             Stock::where('product_id', $rec->product_id)
@@ -294,11 +290,6 @@ class EditStockIn extends EditRecord
 
         Transaction::where('stock_in_id', $rec->id)
             ->delete();
-    }
-
-    protected function is_farmer($customer_id): bool
-    {
-        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::FARMER;
     }
 
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')

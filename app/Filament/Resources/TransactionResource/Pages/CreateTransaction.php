@@ -2,7 +2,6 @@
 namespace App\Filament\Resources\TransactionResource\Pages;
 
 use App\Enums\CashFlowEnum;
-use App\Enums\CustomerEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Resources\TransactionResource;
 use App\Filament\Services\CustomerService;
@@ -23,50 +22,42 @@ class CreateTransaction extends CreateRecord
     {
         $this->lastDate = $data['date'];
         $first          = null;
+
         foreach ($data['transactions'] as $tran) {
             if (! empty($tran['deposit_amount'])) {
                 $customer_id = $tran['customer_id'];
+                $amount      = $tran['deposit_amount'];
 
                 $first = Transaction::create([
                     'customer_id'  => $customer_id,
                     'date'         => $data['date'],
                     'cash_flow_id' => CashFlowEnum::DEPOSIT,
                     'tran_type_id' => TransactionTypeEnum::DEPOSIT,
-                    'amount'       => $tran['deposit_amount'],
+                    'amount'       => $amount,
                 ]);
 
-                if ($this->is_egg_seller($customer_id)) {
-                    $this->updateCustomerBalance($tran['customer_id'], $tran['deposit_amount'], 'add');
-                } else {
-                    $this->updateCustomerBalance($tran['customer_id'], $tran['deposit_amount'], 'subtract');
-                }
+                $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
+                $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
 
             if (! empty($tran['expense_amount'])) {
                 $customer_id = $tran['customer_id'];
+                $amount      = $tran['expense_amount'];
 
                 $first = Transaction::create([
                     'customer_id'  => $tran['customer_id'],
                     'date'         => $data['date'],
                     'cash_flow_id' => CashFlowEnum::EXPENSE,
                     'tran_type_id' => TransactionTypeEnum::EXPENSE,
-                    'amount'       => $tran['expense_amount'],
+                    'amount'       => $amount,
                 ]);
 
-                if ($this->is_egg_seller($customer_id)) {
-                    $this->updateCustomerBalance($tran['customer_id'], $tran['deposit_amount'], 'subtract');
-                } else {
-                    $this->updateCustomerBalance($tran['customer_id'], $tran['deposit_amount'], 'add');
-                }
+                $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
+                $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
         }
 
         return $first;
-    }
-
-    public function is_egg_seller($customer_id): bool
-    {
-        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::EGG_SELLER;
     }
 
     private function updateCustomerBalance($customer_id, $balance, $operation = 'add')

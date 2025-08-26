@@ -32,6 +32,7 @@ class CreateStockOut extends CreateRecord
         foreach ($data['stock_outs'] as $stock) {
             $amount  = $this->amount($stock);
             $balance = $this->balance($stock);
+            $customer_id = $stock['customer_id'];
 
             if (! $this->hasUnavailableStock($stock['product_id'], $stock['quantity'])) {
                 continue;
@@ -41,11 +42,8 @@ class CreateStockOut extends CreateRecord
 
             $this->updateStock($stock);
 
-            if ($this->is_egg_seller($stock['customer_id'])) {
-                $this->updateCustomerBalance($stock['customer_id'], $balance, 'subtract');
-            } else {
-                $this->updateCustomerBalance($stock['customer_id'], $balance, 'add');
-            }
+            $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
+            $this->updateCustomerBalance($customer_id, $balance, $operation);
 
             $this->saveStockOutTransaction($stock, $amount, $stockOut);
         }

@@ -2,7 +2,6 @@
 namespace App\Filament\Resources\StockOutResource\Pages;
 
 use App\Enums\AvailableEnum;
-use App\Enums\CustomerEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\StockOutResource;
@@ -65,11 +64,8 @@ class EditStockOut extends EditRecord
         $balance     = $amount - $form_data['deposit'];
         $customer_id = $form_data['customer_id'];
 
-        if ($this->is_egg_seller($customer_id)) {
-            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
-        } else {
-            $this->updateCustomerBalance($customer_id, $balance, 'add');
-        }
+        $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
+        $this->updateCustomerBalance($customer_id, $balance, $operation);
 
         $this->updateStock($form_data);
 
@@ -259,11 +255,8 @@ class EditStockOut extends EditRecord
         $amount  = ($rate * $quantity) - $discount;
         $balance = $amount - $deposit;
 
-        if ($this->is_egg_seller($customer_id)) {
-            $this->updateCustomerBalance($customer_id, $balance, 'add');
-        } else {
-            $this->updateCustomerBalance($customer_id, $balance, 'subtract');
-        }
+        $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
+        $this->updateCustomerBalance($customer_id, $balance, $operation);
 
         $stock = Stock::where('product_id', $product_id)->first();
 
@@ -307,11 +300,6 @@ class EditStockOut extends EditRecord
 
         Transaction::where('stock_out_id', $rec->id)
             ->delete();
-    }
-
-    public function is_egg_seller($customer_id): bool
-    {
-        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::EGG_SELLER;
     }
 
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')

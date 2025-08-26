@@ -31,4 +31,14 @@ class Customer extends Model
     {
         return $this->hasMany(StockIn::class, 'customer_id', 'id');
     }
+
+    public function isFarmer(): bool
+    {
+        return $this->type === CustomerEnum::FARMER;
+    }
+
+    public function isEggSeller(): bool
+    {
+        return $this->type === CustomerEnum::EGG_SELLER;
+    }
 }

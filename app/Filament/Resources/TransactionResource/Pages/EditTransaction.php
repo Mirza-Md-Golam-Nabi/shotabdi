@@ -51,19 +51,13 @@ class EditTransaction extends EditRecord
         $balance     = $form_data['amount'];
 
         if (CashFlowEnum::DEPOSIT == $form_data['cash_flow_id']) {
-            if ($this->is_egg_seller($customer_id)) {
-                $this->updateCustomerBalance($customer_id, $balance, 'add');
-            } else {
-                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
-            }
+            $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
+            $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
 
         if (CashFlowEnum::EXPENSE == $form_data['cash_flow_id']) {
-            if ($this->is_egg_seller($customer_id)) {
-                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
-            } else {
-                $this->updateCustomerBalance($customer_id, $balance, 'add');
-            }
+            $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
+            $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
     }
 
@@ -74,25 +68,14 @@ class EditTransaction extends EditRecord
         $balance     = $rec->amount;
 
         if (CashFlowEnum::DEPOSIT == $rec->cash_flow_id) {
-            if ($this->is_egg_seller($customer_id)) {
-                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
-            } else {
-                $this->updateCustomerBalance($customer_id, $balance, 'add');
-            }
+            $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
+            $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
 
         if (CashFlowEnum::EXPENSE == $rec->cash_flow_id) {
-            if ($this->is_egg_seller($customer_id)) {
-                $this->updateCustomerBalance($customer_id, $balance, 'add');
-            } else {
-                $this->updateCustomerBalance($customer_id, $balance, 'subtract');
-            }
+            $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
+            $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
-    }
-
-    public function is_egg_seller($customer_id): bool
-    {
-        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::EGG_SELLER;
     }
 
     public function form(Form $form): Form
