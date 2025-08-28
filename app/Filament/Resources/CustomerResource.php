@@ -41,7 +41,7 @@ class CustomerResource extends Resource
                 TextColumn::make('type')
                     ->label('ধরণ')
                     ->badge()
-                    ->formatStateUsing(fn(CustomerEnum $state) => $state->label())
+                    ->formatStateUsing(fn(CustomerEnum $state) => $state->bangla())
                     ->color(fn (CustomerEnum $state) => $state->color()),
                 TextColumn::make('address')
                     ->label('ঠিকানা')

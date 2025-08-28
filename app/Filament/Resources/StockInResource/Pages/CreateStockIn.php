@@ -32,6 +32,9 @@ class CreateStockIn extends CreateRecord
             $amount  = $this->amount($stock);
             $balance = $this->balance($stock);
             $customer_id = $stock['customer_id'];
+            $multiply = $stock['product_id'] == 1 ? 30 : 1;
+
+            $stock['quantity'] = $stock['quantity'] * $multiply;
 
             $this->stock_in = $stockIn = $this->createStockIn($stock);
 

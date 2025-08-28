@@ -5,24 +5,28 @@ trait HasAmountCalculation
 {
     protected static function stockInUpdateAmount($set, $get): void
     {
-        $quantity = (float) $get('quantity') ?? 0;
-        $rate     = (float) $get('rate') ?? 0;
-        $discount = (float) $get('discount') ?? 0;
-        $deposit  = (float) $get('deposit') ?? 0;
-        $cashback = (float) $get('cashback') ?? 0;
+        $product_id = $get('product_id') ?? 0;
+        $quantity   = (float) $get('quantity') ?? 0;
+        $rate       = (float) $get('rate') ?? 0;
+        $discount   = (float) $get('discount') ?? 0;
+        $deposit    = (float) $get('deposit') ?? 0;
+        $cashback   = (float) $get('cashback') ?? 0;
+        $multiply   = $product_id == 1 ? 30 : 1;
 
-        $amount = ($quantity * $rate) + $deposit - $discount - $cashback;
+        $amount = ($quantity * $multiply * $rate) + $deposit - $discount - $cashback;
         $set('amount', $amount);
     }
 
     protected static function stockOutUpdateAmount($set, $get): void
     {
-        $quantity = (float) $get('quantity') ?? 0;
-        $rate     = (float) $get('rate') ?? 0;
-        $discount = (float) $get('discount') ?? 0;
-        $deposit  = (float) $get('deposit') ?? 0;
+        $product_id = $get('product_id') ?? 0;
+        $quantity   = (float) $get('quantity') ?? 0;
+        $rate       = (float) $get('rate') ?? 0;
+        $discount   = (float) $get('discount') ?? 0;
+        $deposit    = (float) $get('deposit') ?? 0;
+        $multiply   = $product_id == 1 ? 30 : 1;
 
-        $amount = ($quantity * $rate) - $discount - $deposit;
+        $amount = ($quantity * $multiply * $rate) - $discount - $deposit;
         $set('amount', $amount);
     }
 }

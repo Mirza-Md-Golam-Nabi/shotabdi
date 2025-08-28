@@ -1,17 +1,16 @@
 <?php
 namespace App\Filament\Resources\StockOutResource\Pages;
 
+use App\Enums\AvailableEnum;
+use App\Filament\Resources\StockOutResource;
+use App\Filament\Services\CustomerService;
+use App\Filament\Traits\HandlesTransactions;
+use App\Models\Customer;
 use App\Models\Stock;
 use App\Models\StockIn;
-use App\Models\Customer;
 use App\Models\StockOut;
-use App\Enums\CustomerEnum;
-use App\Enums\AvailableEnum;
-use Illuminate\Database\Eloquent\Model;
-use App\Filament\Services\CustomerService;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Resources\StockOutResource;
-use App\Filament\Traits\HandlesTransactions;
+use Illuminate\Database\Eloquent\Model;
 
 class CreateStockOut extends CreateRecord
 {
@@ -30,9 +29,12 @@ class CreateStockOut extends CreateRecord
         $this->date = $data['date'];
 
         foreach ($data['stock_outs'] as $stock) {
-            $amount  = $this->amount($stock);
-            $balance = $this->balance($stock);
+            $amount      = $this->amount($stock);
+            $balance     = $this->balance($stock);
             $customer_id = $stock['customer_id'];
+            $multiply    = $stock['product_id'] == 1 ? 30 : 1;
+
+            $stock['quantity'] *= $multiply;
 
             if (! $this->hasUnavailableStock($stock['product_id'], $stock['quantity'])) {
                 continue;
@@ -49,11 +51,6 @@ class CreateStockOut extends CreateRecord
         }
 
         return $this->stock_out;
-    }
-
-    public function is_egg_seller($customer_id):bool
-    {
-        return Customer::where('id', $customer_id)->value('type') == CustomerEnum::EGG_SELLER;
     }
 
     protected function getRedirectUrl(): string
@@ -102,6 +99,25 @@ class CreateStockOut extends CreateRecord
 
         if ($stock->available > $data['quantity']) {
             $stock->decrement('available', $data['quantity']);
+        } elseif ($stock->available == $data['quantity']) {
+            StockIn::where('product_id', $data['product_id'])
+                ->where('is_available', AvailableEnum::ACTIVE)
+                ->update(['is_available' => AvailableEnum::FINISHED]);
+
+            $stock_in = StockIn::where('product_id', $data['product_id'])
+                ->where('is_available', AvailableEnum::INACTIVE)
+                ->first();
+
+            $stock->available = 0;
+            if ($stock_in) {
+                $stock->available = $stock_in->quantity;
+
+                $stock_in->is_available = AvailableEnum::ACTIVE;
+                $stock_in->save();
+            }
+
+            $stock->save();
+
         } else {
             $remain = $data['quantity'] - $stock->available;
 

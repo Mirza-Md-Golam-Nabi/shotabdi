@@ -1,23 +1,25 @@
 <?php
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProductResource\Pages;
+use App\Models\Stock;
 use App\Models\Product;
-use Filament\Forms\Components\TextInput;
+use App\Models\StockIn;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ForceDeleteAction;
-use Filament\Tables\Actions\ForceDeleteBulkAction;
-use Filament\Tables\Actions\RestoreAction;
-use Filament\Tables\Actions\RestoreBulkAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Filament\Forms\ProductForm;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use App\Filament\Resources\ProductResource\Pages;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
@@ -29,18 +31,7 @@ class ProductResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-
-                TextInput::make('quantity')
-                    ->label('বর্তমান স্টক (বস্তা/খাঁচি)')
-                    ->disabled()
-                    ->afterStateHydrated(function ($component, $record) {
-                        $component->state($record->stock?->quantity ?? 0);
-                    }),
-            ]);
+            ->schema(ProductForm::fields());
     }
 
     public static function table(Table $table): Table
@@ -72,7 +63,26 @@ class ProductResource extends Resource
             ])
             ->actions([
                 EditAction::make()
-                    ->iconButton(),
+                    ->iconButton()
+                    ->using(function (Product $record, array $data) {
+                        $record->update($data);
+                        return $record;
+                    })
+                    ->after(function (Product $record, array $data) {
+                        $product_id = $record->id;
+                        $quantity   = $data['quantity'];
+
+                        StockIn::where('product_id', $product_id)
+                            ->update([
+                                'quantity' => $quantity,
+                            ]);
+
+                        Stock::where('product_id', $product_id)
+                            ->update([
+                                'quantity'  => $quantity,
+                                'available' => $quantity,
+                            ]);
+                    }),
                 DeleteAction::make()
                     ->iconButton(),
                 ForceDeleteAction::make(),

@@ -2,6 +2,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Forms\CustomerForm;
+use App\Filament\Forms\ProductForm;
 use App\Filament\Resources\StockInResource\Pages;
 use App\Filament\Traits\HasAmountCalculation;
 use App\Models\Customer;
@@ -98,11 +99,7 @@ class StockInResource extends Resource
                         ->searchable()
                     // ->preload()
                         ->columnSpan('full')
-                        ->createOptionForm([
-                            TextInput::make('name')
-                                ->required()
-                                ->maxLength(255),
-                        ])
+                        ->createOptionForm(ProductForm::fields())
                         ->createOptionUsing(function (array $data) {
                             $product = Product::create($data);
                             return $product->getKey();

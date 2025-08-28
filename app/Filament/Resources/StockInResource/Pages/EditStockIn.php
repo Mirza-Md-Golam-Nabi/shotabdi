@@ -1,7 +1,6 @@
 <?php
 namespace App\Filament\Resources\StockInResource\Pages;
 
-use App\Enums\CustomerEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Resources\StockInResource;
 use App\Filament\Services\CustomerService;
@@ -52,6 +51,10 @@ class EditStockIn extends EditRecord
     {
         $this->stockInRollback();
 
+        $multiply = $data['product_id'] == 1 ? 30 : 1;
+
+        $data['quantity'] = $data['quantity'] * $multiply;
+
         $data['amount'] = ($data['rate'] * $data['quantity']) - $data['discount'];
 
         return $data;
@@ -61,8 +64,12 @@ class EditStockIn extends EditRecord
     {
         $form_data = $this->form->getState();
 
-        $amount  = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
-        $balance = $amount + $form_data['deposit'] - $form_data['cashback'];
+        $multiply = $form_data['product_id'] == 1 ? 30 : 1;
+
+        $form_data['quantity'] = $form_data['quantity'] * $multiply;
+
+        $amount      = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
+        $balance     = $amount + $form_data['deposit'] - $form_data['cashback'];
         $customer_id = $form_data['customer_id'];
 
         $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
@@ -258,6 +265,10 @@ class EditStockIn extends EditRecord
         $quantity    = $rec->quantity;
         $discount    = $rec->discount;
         $customer_id = $rec->customer_id;
+        $product_id  = $rec->product_id;
+
+        $multiply = $product_id == 1 ? 30 : 1;
+        $quantity = $quantity * $multiply;
 
         [$deposit, $cashback] = $this->tranBalance();
 
@@ -268,13 +279,13 @@ class EditStockIn extends EditRecord
         $this->updateCustomerBalance($customer_id, $balance, $operation);
 
         if ($rec->is_available == 1) {
-            Stock::where('product_id', $rec->product_id)
+            Stock::where('product_id', $product_id)
                 ->update([
                     'quantity'  => DB::raw('quantity - ' . $quantity),
                     'available' => DB::raw('available - ' . $quantity),
                 ]);
         } else {
-            Stock::where('product_id', $rec->product_id)
+            Stock::where('product_id', $product_id)
                 ->update([
                     'quantity' => DB::raw('quantity - ' . $quantity),
                 ]);

@@ -20,12 +20,6 @@ class Login extends BaseAuth
             ->statePath('data');
     }
 
-    protected function getPasswordFormComponent(): TextInput
-    {
-        return parent::getPasswordFormComponent()
-            ->numeric();
-    }
-
     protected function getLoginFormComponent(): Component
     {
         return TextInput::make('mobile')

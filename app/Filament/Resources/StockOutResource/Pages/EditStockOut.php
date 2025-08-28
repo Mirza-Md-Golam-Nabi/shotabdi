@@ -51,6 +51,10 @@ class EditStockOut extends EditRecord
     {
         $this->stockOutRollback();
 
+        $multiply = $data['product_id'] == 1 ? 30 : 1;
+
+        $data['quantity'] *= $multiply;
+
         $data['amount'] = ($data['rate'] * $data['quantity']) - $data['discount'];
 
         return $data;
@@ -59,6 +63,10 @@ class EditStockOut extends EditRecord
     protected function afterSave(): void
     {
         $form_data = $this->form->getState();
+
+        $multiply = $form_data['product_id'] == 1 ? 30 : 1;
+
+        $form_data['quantity'] *= $multiply;
 
         $amount      = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
         $balance     = $amount - $form_data['deposit'];
@@ -249,6 +257,9 @@ class EditStockOut extends EditRecord
         $discount    = $rec->discount;
         $product_id  = $rec->product_id;
         $customer_id = $rec->customer_id;
+
+        $multiply = $product_id == 1 ? 30 : 1;
+        $quantity *= $multiply;
 
         $deposit = $this->tranBalance();
 
