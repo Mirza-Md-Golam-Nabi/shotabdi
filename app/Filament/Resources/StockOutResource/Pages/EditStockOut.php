@@ -38,7 +38,7 @@ class EditStockOut extends EditRecord
 
         $deposit = $this->tranBalance();
 
-        $amount = ($rec->rate * $rec->quantity) - $rec->discount - $deposit;
+        $amount = round($rec->rate * $rec->quantity) - $rec->discount - $deposit;
 
         $this->form->fill([
              ...$this->form->getState(),
@@ -55,7 +55,7 @@ class EditStockOut extends EditRecord
 
         $data['quantity'] *= $multiply;
 
-        $data['amount'] = ($data['rate'] * $data['quantity']) - $data['discount'];
+        $data['amount'] = round($data['rate'] * $data['quantity']) - $data['discount'];
 
         return $data;
     }
@@ -68,7 +68,7 @@ class EditStockOut extends EditRecord
 
         $form_data['quantity'] *= $multiply;
 
-        $amount      = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
+        $amount      = round($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
         $balance     = $amount - $form_data['deposit'];
         $customer_id = $form_data['customer_id'];
 
@@ -180,7 +180,7 @@ class EditStockOut extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockOutUpdateAmount($set, $get);
                     }),
 
@@ -190,7 +190,7 @@ class EditStockOut extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockOutUpdateAmount($set, $get);
                     }),
 
@@ -199,7 +199,7 @@ class EditStockOut extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockOutUpdateAmount($set, $get);
                     }),
 
@@ -208,7 +208,7 @@ class EditStockOut extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockOutUpdateAmount($set, $get);
                     }),
 
@@ -263,7 +263,7 @@ class EditStockOut extends EditRecord
 
         $deposit = $this->tranBalance();
 
-        $amount  = ($rate * $quantity) - $discount;
+        $amount  = round($rate * $quantity) - $discount;
         $balance = $amount - $deposit;
 
         $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';

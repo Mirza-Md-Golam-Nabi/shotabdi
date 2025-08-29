@@ -12,8 +12,9 @@ trait HasAmountCalculation
         $deposit    = (float) $get('deposit') ?? 0;
         $cashback   = (float) $get('cashback') ?? 0;
         $multiply   = $product_id == 1 ? 30 : 1;
+        $sub_total  = round($quantity * $multiply * $rate);
 
-        $amount = ($quantity * $multiply * $rate) + $deposit - $discount - $cashback;
+        $amount = $sub_total + $deposit - $discount - $cashback;
         $set('amount', $amount);
     }
 
@@ -25,8 +26,9 @@ trait HasAmountCalculation
         $discount   = (float) $get('discount') ?? 0;
         $deposit    = (float) $get('deposit') ?? 0;
         $multiply   = $product_id == 1 ? 30 : 1;
+        $sub_total  = round($quantity * $multiply * $rate);
 
-        $amount = ($quantity * $multiply * $rate) - $discount - $deposit;
+        $amount = $sub_total - $discount - $deposit;
         $set('amount', $amount);
     }
 }

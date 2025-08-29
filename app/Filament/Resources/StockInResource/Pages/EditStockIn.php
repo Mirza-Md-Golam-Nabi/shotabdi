@@ -71,7 +71,7 @@ class EditStockIn extends EditRecord
 
         $form_data['quantity'] = $form_data['quantity'] * $multiply;
 
-        $amount      = ($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
+        $amount      = round($form_data['rate'] * $form_data['quantity']) - $form_data['discount'];
         $balance     = $amount + $form_data['deposit'] - $form_data['cashback'];
         $customer_id = $form_data['customer_id'];
 
@@ -164,7 +164,7 @@ class EditStockIn extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockInUpdateAmount($set, $get);
                     }),
 
@@ -174,7 +174,7 @@ class EditStockIn extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockInUpdateAmount($set, $get);
                     }),
                 TextInput::make('discount')
@@ -182,7 +182,7 @@ class EditStockIn extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockInUpdateAmount($set, $get);
                     }),
                 TextInput::make('deposit')
@@ -190,7 +190,7 @@ class EditStockIn extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockInUpdateAmount($set, $get);
                     }),
                 TextInput::make('cashback')
@@ -198,7 +198,7 @@ class EditStockIn extends EditRecord
                     ->numeric()
                     ->columnSpan(1)
                     ->live(onBlur: true) // শুধু ফোকাস সরালে আপডেট হবে
-                    ->afterStateUpdated(function ($state, $set, $get) {
+                    ->afterStateUpdated(function ($set, $get) {
                         self::stockInUpdateAmount($set, $get);
                     }),
                 TextInput::make('amount')
@@ -272,7 +272,7 @@ class EditStockIn extends EditRecord
 
         [$deposit, $cashback] = $this->tranBalance();
 
-        $amount  = ($rate * $quantity) - $discount;
+        $amount  = round($rate * $quantity) - $discount;
         $balance = $amount + $deposit - $cashback;
 
         $operation = Customer::find($customer_id)?->isFarmer() ? 'add' : 'subtract';

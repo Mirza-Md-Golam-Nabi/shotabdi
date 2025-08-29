@@ -37,6 +37,7 @@ class Product extends Page
             'name'  => $prod->name,
             'unit'  => $unit,
             'stock' => $stock,
+            'route' => 'filament.admin.pages.details-customer',
         ];
 
         $this->stocks = StockIn::with('customer')

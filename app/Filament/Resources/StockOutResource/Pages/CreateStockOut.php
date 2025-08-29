@@ -72,7 +72,7 @@ class CreateStockOut extends CreateRecord
 
     protected function amount(array $data)
     {
-        return ($data['rate'] * $data['quantity']) - $data['discount'];
+        return round($data['rate'] * $data['quantity']) - $data['discount'];
     }
 
     protected function balance(array $data)

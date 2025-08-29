@@ -34,7 +34,15 @@
                                 {{ $tran->date }}
                             </td>
                             <td class="border px-1 py-1 text-left">
-                                {{ $tran->detail }}
+                                @if ($tran->product_id)
+                                    <x-filament::link :href="route($route, [
+                                        'product_id' => $tran->product_id,
+                                    ])" color="" weight="normal">
+                                        {{ $tran->detail }}
+                                    </x-filament::link>
+                                @else
+                                    {{ $tran->detail }}
+                                @endif
                             </td>
                             <td class="border px-1 py-1 text-right">
                                 {{ number_format($tran->amount, 0) }}

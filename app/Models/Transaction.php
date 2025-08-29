@@ -40,7 +40,7 @@ class Transaction extends Model
             $factor  = $product->id == 1 ? 30 : 1;
             $unit    = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
             $quantity = $this->stock_in->quantity / $factor;
-            $rate     = number_format($this->stock_in->rate);
+            $rate     = number_format($this->stock_in->rate, 1);
 
             return "{$product->name} ({$quantity} {$unit}, {$rate} দর)";
         }
@@ -50,7 +50,7 @@ class Transaction extends Model
             $factor  = $product->id == 1 ? 30 : 1;
             $unit    = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
             $quantity = $this->stock_out->quantity / $factor;
-            $rate     = number_format($this->stock_out->rate);
+            $rate     = number_format($this->stock_out->rate, 1);
 
             return "{$product->name} ({$quantity} {$unit}, {$rate} দর)";
         }

@@ -30,7 +30,11 @@
                                 {{ $stock->date }}
                             </td>
                             <td class="border px-1 py-1 text-left">
-                                {{ $stock->customer->name }}
+                                <x-filament::link :href="route($product['route'], [
+                                    'customer_id' => $stock->customer_id,
+                                ])" color="" weight="thin">
+                                    {{ $stock->customer->name }}
+                                </x-filament::link>
                             </td>
                             <td class="border px-1 py-1 text-right">
                                 {{ "{$stock->display_quantity} {$stock->unit}" }}
