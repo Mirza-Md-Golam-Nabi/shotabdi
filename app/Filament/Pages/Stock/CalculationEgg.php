@@ -32,12 +32,15 @@ class CalculationEgg extends Page
     public function mount()
     {
         $this->route = [
-            'current' => 'filament.admin.pages.stock-calculation-egg',
-            'stock_in_edit' => 'filament.admin.resources.stock-ins.edit',
+            'current'        => 'filament.admin.pages.stock-calculation-egg',
+            'stock_in_edit'  => 'filament.admin.resources.stock-ins.edit',
             'stock_out_edit' => 'filament.admin.resources.stock-outs.edit',
         ];
 
-        $this->current_stock = Stock::where('product_id', 1)->value('quantity');
+        $this->current_stock = optional(
+            Stock::where('product_id', 1)
+                ->first()
+        )->quantity / 30;
 
         $date_select = request()->query('date', now()->toDateString());
 
@@ -64,8 +67,8 @@ class CalculationEgg extends Page
 
         // sum of data
         $this->sum = [
-            'stock_in_total'  => $stock_ins->sum('quantity'),
-            'stock_out_total' => $stock_outs->sum('quantity'),
+            'stock_in_total'  => $stock_ins->sum('quantity') / 30,
+            'stock_out_total' => $stock_outs->sum('quantity') / 30,
         ];
 
         // convert into array
@@ -80,10 +83,14 @@ class CalculationEgg extends Page
                     return [
                         'stock_in_id'        => $stock_in[$i]['id'] ?? null,
                         'stock_in_name'      => $stock_in[$i]['customer']['name'] ?? null,
-                        'stock_in_quantity'  => $stock_in[$i]['quantity'] ?? null,
+                        'stock_in_quantity'  => isset($stock_in[$i]['quantity'])
+                        ? $stock_in[$i]['quantity'] / 30
+                        : null,
                         'stock_out_id'       => $stock_out[$i]['id'] ?? null,
                         'stock_out_name'     => $stock_out[$i]['customer']['name'] ?? null,
-                        'stock_out_quantity' => $stock_out[$i]['quantity'] ?? null,
+                        'stock_out_quantity' => isset($stock_out[$i]['quantity'])
+                        ? $stock_out[$i]['quantity'] / 30
+                        : null,
                     ];
                 })->toArray();
         }

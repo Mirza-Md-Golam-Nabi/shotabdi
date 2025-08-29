@@ -14,6 +14,8 @@ class StockIn extends Model
 
     protected $fillable = ['date', 'customer_id', 'product_id', 'quantity', 'rate', 'amount', 'discount', 'is_available'];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     protected $casts = [
         'is_available' => AvailableEnum::class,
     ];

@@ -7,7 +7,7 @@ enum TransactionTypeEnum: int {
     case DEPOSIT = 3;
     case EXPENSE = 4;
 
-    public function description(): string
+    public function label(): string
     {
         return match ($this) {
             self::FEED => 'Feed',

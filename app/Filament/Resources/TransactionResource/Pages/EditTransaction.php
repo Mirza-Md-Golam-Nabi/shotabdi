@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Log;
 
 class EditTransaction extends EditRecord
 {
@@ -48,16 +49,19 @@ class EditTransaction extends EditRecord
 
         $customer_id = $form_data['customer_id'];
         $balance     = $form_data['amount'];
+        $customer    = Customer::find($customer_id);
 
-        if (CashFlowEnum::DEPOSIT == $form_data['cash_flow_id']) {
-            $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
+        if (CashFlowEnum::DEPOSIT->value == $form_data['cash_flow_id']) {
+            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'add' : 'subtract';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
 
-        if (CashFlowEnum::EXPENSE == $form_data['cash_flow_id']) {
-            $operation = Customer::find($customer_id)?->isNormal() ? 'add' : 'subtract';
+        if (CashFlowEnum::EXPENSE->value == $form_data['cash_flow_id']) {
+            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'subtract' : 'add';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
+
+        Log::info(json_encode(['afterSave', $operation, $balance]));
     }
 
     protected function transactionRollback(): void
@@ -65,16 +69,19 @@ class EditTransaction extends EditRecord
         $rec         = $this->record; // transactions table data
         $customer_id = $rec->customer_id;
         $balance     = $rec->amount;
+        $customer    = Customer::find($customer_id);
 
         if (CashFlowEnum::DEPOSIT == $rec->cash_flow_id) {
-            $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
+            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'subtract' : 'add';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
 
         if (CashFlowEnum::EXPENSE == $rec->cash_flow_id) {
-            $operation = Customer::find($customer_id)?->isNormal() ? 'subtract' : 'add';
+            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'add' : 'subtract';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
+
+        Log::info(json_encode(['rollback', $operation, $balance]));
     }
 
     public function form(Form $form): Form

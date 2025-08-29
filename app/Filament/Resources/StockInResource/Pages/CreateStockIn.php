@@ -2,7 +2,6 @@
 namespace App\Filament\Resources\StockInResource\Pages;
 
 use App\Enums\AvailableEnum;
-use App\Enums\CustomerEnum;
 use App\Filament\Resources\StockInResource;
 use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
@@ -29,12 +28,12 @@ class CreateStockIn extends CreateRecord
         $this->date = $data['date'];
 
         foreach ($data['stock_ins'] as $stock) {
-            $amount  = $this->amount($stock);
-            $balance = $this->balance($stock);
-            $customer_id = $stock['customer_id'];
-            $multiply = $stock['product_id'] == 1 ? 30 : 1;
-
+            $multiply          = $stock['product_id'] == 1 ? 30 : 1;
             $stock['quantity'] = $stock['quantity'] * $multiply;
+
+            $amount      = $this->amount($stock);
+            $balance     = $this->balance($stock);
+            $customer_id = $stock['customer_id'];
 
             $this->stock_in = $stockIn = $this->createStockIn($stock);
 

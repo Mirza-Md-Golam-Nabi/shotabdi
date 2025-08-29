@@ -1,16 +1,17 @@
 <?php
 namespace App\Filament\Resources;
 
-use App\Enums\CustomerEnum;
-use App\Filament\Forms\CustomerForm;
-use App\Filament\Resources\CustomerResource\Pages;
+use Filament\Tables;
 use App\Models\Customer;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Enums\CustomerEnum;
+use Filament\Resources\Resource;
+use App\Filament\Forms\CustomerForm;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\CustomerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomerResource extends Resource
@@ -28,6 +29,11 @@ class CustomerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(function (Model $record) {
+                return route('filament.admin.pages.customer-details', [
+                    'customer_id' => $record->id,
+                ]);
+            })
             ->columns([
                 TextColumn::make('name')
                     ->label('নাম')
@@ -42,7 +48,7 @@ class CustomerResource extends Resource
                     ->label('ধরণ')
                     ->badge()
                     ->formatStateUsing(fn(CustomerEnum $state) => $state->bangla())
-                    ->color(fn (CustomerEnum $state) => $state->color()),
+                    ->color(fn(CustomerEnum $state) => $state->color()),
                 TextColumn::make('address')
                     ->label('ঠিকানা')
                     ->searchable()

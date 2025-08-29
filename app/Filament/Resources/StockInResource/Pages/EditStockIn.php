@@ -33,16 +33,19 @@ class EditStockIn extends EditRecord
 
         $rec        = $this->record;
         $this->date = $rec->date;
+        $factor     = $rec->product_id == 1 ? 30 : 1;
 
         [$deposit, $cashback] = $this->tranBalance();
 
         $amount = ($rec->rate * $rec->quantity) - $rec->discount + $deposit - $cashback;
+        $quantity = $rec->quantity / $factor;
 
         $this->form->fill([
              ...$this->form->getState(),
             'deposit'  => $deposit,
             'cashback' => $cashback,
             'amount'   => $amount,
+            'quantity' => $quantity,
         ]);
 
     }
@@ -267,9 +270,6 @@ class EditStockIn extends EditRecord
         $customer_id = $rec->customer_id;
         $product_id  = $rec->product_id;
 
-        $multiply = $product_id == 1 ? 30 : 1;
-        $quantity = $quantity * $multiply;
-
         [$deposit, $cashback] = $this->tranBalance();
 
         $amount  = ($rate * $quantity) - $discount;
@@ -290,14 +290,6 @@ class EditStockIn extends EditRecord
                     'quantity' => DB::raw('quantity - ' . $quantity),
                 ]);
         }
-
-        StockIn::where('id', $rec->id)->update([
-            'quantity'     => 0,
-            'rate'         => 0,
-            'discount'     => 0,
-            'amount'       => 0,
-            'is_available' => 0,
-        ]);
 
         Transaction::where('stock_in_id', $rec->id)
             ->delete();
