@@ -50,7 +50,11 @@
                                             'record' => $stock['stock_in_id'],
                                         ])" tag="a" class="inline-flex" />
                                 @endif
-                                {{ $stock['stock_in_name'] }}
+                                <x-filament::link :href="route($route['product_detail'], [
+                                    'product_id' => $stock['stock_in_product'],
+                                ])" color="" weight="thin">
+                                    {{ $stock['stock_in_name'] }}
+                                </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
                                 {{ $stock['stock_in_quantity'] }}
@@ -62,7 +66,11 @@
                                             'record' => $stock['stock_out_id'],
                                         ])" tag="a" class="inline-flex" />
                                 @endif
-                                {{ $stock['stock_out_name'] }}
+                                <x-filament::link :href="route($route['product_detail'], [
+                                    'product_id' => $stock['stock_out_product'],
+                                ])" color="" weight="thin">
+                                    {{ $stock['stock_out_name'] }}
+                                </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
                                 {{ $stock['stock_out_quantity'] }}

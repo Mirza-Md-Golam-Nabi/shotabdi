@@ -29,4 +29,18 @@ class StockIn extends Model
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
+
+    public function getDisplayQuantityAttribute()
+    {
+        return $this->product_id == 1
+        ? $this->quantity / 30
+        : $this->quantity;
+    }
+
+    public function getUnitAttribute()
+    {
+        return $this->product_id == 1
+        ? 'খাঁচি'
+        : 'বস্তা';
+    }
 }

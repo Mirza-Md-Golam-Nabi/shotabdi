@@ -1,25 +1,26 @@
 <?php
 namespace App\Filament\Resources;
 
-use App\Models\Stock;
+use App\Filament\Forms\ProductForm;
+use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
+use App\Models\Stock;
 use App\Models\StockIn;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use App\Filament\Forms\ProductForm;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Actions\DeleteAction;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Actions\RestoreAction;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ForceDeleteAction;
-use Filament\Tables\Actions\RestoreBulkAction;
-use App\Filament\Resources\ProductResource\Pages;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
@@ -37,13 +38,23 @@ class ProductResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(function (Model $record) {
+                return route('filament.admin.pages.details-product', [
+                    'product_id' => $record->id,
+                ]);
+            })
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
 
                 TextColumn::make('stock.quantity')
+                    ->label('বর্তমান স্টক')
                     ->sortable()
-                    ->label('বর্তমান স্টক'),
+                    ->formatStateUsing(fn($state, $record) =>
+                        $record->id == 1
+                        ? floor(($state / 30)) . ' খাঁচি'
+                        : $state . ' বস্তা'
+                    ),
 
                 TextColumn::make('created_at')
                     ->dateTime()

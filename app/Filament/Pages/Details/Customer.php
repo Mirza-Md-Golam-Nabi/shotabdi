@@ -1,16 +1,18 @@
 <?php
-namespace App\Filament\Pages;
+namespace App\Filament\Pages\Details;
 
-use App\Models\Customer;
+use App\Models\Customer as CustomerModel;
 use App\Models\Transaction;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 
-class CustomerDetails extends Page
+class Customer extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.customer-details';
+    protected static string $view = 'filament.pages.details.customer';
+
+    protected static ?string $slug = 'details-customer';
 
     protected static bool $shouldRegisterNavigation = false;
 
@@ -18,19 +20,20 @@ class CustomerDetails extends Page
 
     public ?Collection $transactions = null;
 
-    public Customer $customer;
+    public CustomerModel $customer;
 
     public function mount()
     {
         $customer_id = request()->query('customer_id');
 
-        $this->customer = Customer::find($customer_id);
+        $this->customer = CustomerModel::find($customer_id);
 
         $this->transactions = Transaction::with(
             'stock_in.product',
             'stock_out.product'
         )
             ->where('customer_id', $customer_id)
+            ->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->get();
 

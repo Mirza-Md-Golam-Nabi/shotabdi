@@ -3,14 +3,14 @@
         <div class="flex justify-between">
             <div>
                 <x-filament::button icon="heroicon-o-arrow-left" size="sm" color="danger" tag="a"
-                    href="{{ route('filament.admin.pages.daily-calculation', ['date' => $date['prev_date']]) }}">
+                    href="{{ route($route['current'], ['date' => $date['prev_date']]) }}">
 
                 </x-filament::button>
             </div>
             <div class="text-sm font-bold text-center">দৈনিক হিসাব</div>
             <div>
                 <x-filament::button icon="heroicon-o-arrow-right" size="sm" color="success" tag="a"
-                    href="{{ route('filament.admin.pages.daily-calculation', ['date' => $date['next_date']]) }}">
+                    href="{{ route($route['current'], ['date' => $date['next_date']]) }}">
 
                 </x-filament::button>
             </div>
@@ -45,11 +45,15 @@
                             <td class="border border-gray-300 px-1 py-1">
                                 @if ($tran['deposit_id'])
                                     <x-filament::icon-button icon="heroicon-m-pencil-square" color="success"
-                                        icon-size="sm" :href="route('filament.admin.resources.transactions.edit', [
+                                        icon-size="sm" :href="route($route['transaction_edit'], [
                                             'record' => $tran['deposit_id'],
                                         ])" tag="a" class="inline-flex" />
                                 @endif
-                                {{ $tran['deposit_name'] }}
+                                <x-filament::link :href="route($route['customer_detail'], [
+                                    'customer_id' => $tran['deposit_customer'],
+                                ])" color="" weight="thin">
+                                    {{ $tran['deposit_name'] }}
+                                </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
                                 {{ $tran['deposit_amount'] }}
@@ -57,11 +61,15 @@
                             <td class="border border-gray-300 px-1 py-1">
                                 @if ($tran['expense_id'])
                                     <x-filament::icon-button icon="heroicon-m-pencil-square" color="success"
-                                        icon-size="sm" :href="route('filament.admin.resources.transactions.edit', [
+                                        icon-size="sm" :href="route($route['transaction_edit'], [
                                             'record' => $tran['expense_id'],
                                         ])" tag="a" class="inline-flex" />
                                 @endif
-                                {{ $tran['expense_name'] }}
+                                <x-filament::link :href="route($route['customer_detail'], [
+                                    'customer_id' => $tran['expense_customer'],
+                                ])" color="" weight="thin">
+                                    {{ $tran['expense_name'] }}
+                                </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
                                 {{ $tran['expense_amount'] }}

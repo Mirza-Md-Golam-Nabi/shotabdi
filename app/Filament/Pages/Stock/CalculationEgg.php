@@ -19,22 +19,23 @@ class CalculationEgg extends Page
 
     protected ?string $heading = '';
 
-    public array $stocks = [];
+    public array $stocks;
 
-    public array $sum = [];
+    public array $sum;
 
-    public array $date = [];
+    public array $date;
 
-    public array $route = [];
+    public array $route;
 
     public ?int $current_stock = null;
 
     public function mount()
     {
         $this->route = [
-            'current'        => 'filament.admin.pages.stock-calculation-egg',
-            'stock_in_edit'  => 'filament.admin.resources.stock-ins.edit',
-            'stock_out_edit' => 'filament.admin.resources.stock-outs.edit',
+            'current'         => 'filament.admin.pages.stock-calculation-egg',
+            'stock_in_edit'   => 'filament.admin.resources.stock-ins.edit',
+            'stock_out_edit'  => 'filament.admin.resources.stock-outs.edit',
+            'customer_detail' => 'filament.admin.pages.details-customer',
         ];
 
         $this->current_stock = optional(
@@ -82,11 +83,13 @@ class CalculationEgg extends Page
                 ->map(function ($i) use ($stock_in, $stock_out) {
                     return [
                         'stock_in_id'        => $stock_in[$i]['id'] ?? null,
+                        'stock_in_customer'  => $stock_in[$i]['customer']['id'] ?? null,
                         'stock_in_name'      => $stock_in[$i]['customer']['name'] ?? null,
                         'stock_in_quantity'  => isset($stock_in[$i]['quantity'])
                         ? $stock_in[$i]['quantity'] / 30
                         : null,
                         'stock_out_id'       => $stock_out[$i]['id'] ?? null,
+                        'stock_out_customer' => $stock_out[$i]['customer']['id'] ?? null,
                         'stock_out_name'     => $stock_out[$i]['customer']['name'] ?? null,
                         'stock_out_quantity' => isset($stock_out[$i]['quantity'])
                         ? $stock_out[$i]['quantity'] / 30

@@ -20,19 +20,27 @@ class DailyCalculation extends Page
 
     protected ?string $heading = '';
 
-    public array $transactions = [];
+    public array $transactions;
 
-    public array $sum = [];
+    public array $sum;
 
-    public array $date = [];
+    public array $date;
 
     public ?array $distribute;
 
     public bool $isProfit;
 
+    public array $route;
+
     public function mount()
     {
         $date_select = request()->query('date', now()->toDateString());
+
+        $this->route = [
+            'current'          => 'filament.admin.pages.daily-calculation',
+            'transaction_edit' => 'filament.admin.resources.transactions.edit',
+            'customer_detail'  => 'filament.admin.pages.details-customer',
+        ];
 
         $date_parse = Carbon::parse($date_select);
         $this->date = [
@@ -80,12 +88,14 @@ class DailyCalculation extends Page
             $this->transactions = collect(range(0, $maxCount - 1))
                 ->map(function ($i) use ($deposits, $expenses) {
                     return [
-                        'deposit_id'     => $deposits[$i]['id'] ?? null,
-                        'deposit_name'   => $deposits[$i]['customer']['name'] ?? null,
-                        'deposit_amount' => numberFormat($deposits, $i),
-                        'expense_id'     => $expenses[$i]['id'] ?? null,
-                        'expense_name'   => $expenses[$i]['customer']['name'] ?? null,
-                        'expense_amount' => numberFormat($expenses, $i),
+                        'deposit_id'       => $deposits[$i]['id'] ?? null,
+                        'deposit_customer' => $deposits[$i]['customer']['id'] ?? null,
+                        'deposit_name'     => $deposits[$i]['customer']['name'] ?? null,
+                        'deposit_amount'   => numberFormat($deposits, $i),
+                        'expense_id'       => $expenses[$i]['id'] ?? null,
+                        'expense_customer' => $expenses[$i]['customer']['id'] ?? null,
+                        'expense_name'     => $expenses[$i]['customer']['name'] ?? null,
+                        'expense_amount'   => numberFormat($expenses, $i),
                     ];
                 })->toArray();
         }

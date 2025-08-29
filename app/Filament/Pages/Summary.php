@@ -1,11 +1,10 @@
 <?php
-
 namespace App\Filament\Pages;
 
-use Carbon\Carbon;
-use Filament\Pages\Page;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
+use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 
 class Summary extends Page
@@ -30,6 +29,8 @@ class Summary extends Page
     {
         $transactions = Transaction::query()
             ->select('date')
+            ->whereNull('stock_in_id')
+            ->whereNull('stock_out_id')
             ->groupBy('date')
             ->orderByDesc('date')
             ->take(30)

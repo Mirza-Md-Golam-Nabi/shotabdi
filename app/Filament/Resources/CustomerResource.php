@@ -30,7 +30,7 @@ class CustomerResource extends Resource
     {
         return $table
             ->recordUrl(function (Model $record) {
-                return route('filament.admin.pages.customer-details', [
+                return route('filament.admin.pages.details-customer', [
                     'customer_id' => $record->id,
                 ]);
             })
