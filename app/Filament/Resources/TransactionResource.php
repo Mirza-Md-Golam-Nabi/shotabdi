@@ -34,7 +34,7 @@ class TransactionResource extends Resource
                         Select::make('customer_id')
                             ->label('কাস্টমার নাম')
                         // ->relationship('customer', 'name')
-                            ->options(Customer::pluck('name', 'id'))
+                            ->options(Customer::selectOption())
                             ->required()
                             ->searchable()
                         // ->preload()

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Product extends Model
 {
@@ -34,6 +35,11 @@ class Product extends Model
     public function stockOuts(): HasMany
     {
         return $this->hasMany(StockOut::class, 'product_id', 'id');
+    }
+
+    public static function selectOption(string $sort = 'asc'): Collection
+    {
+        return self::orderBy('name', $sort)->pluck('name', 'id');
     }
 
 }

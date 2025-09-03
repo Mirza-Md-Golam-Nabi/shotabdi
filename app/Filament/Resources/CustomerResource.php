@@ -1,17 +1,17 @@
 <?php
 namespace App\Filament\Resources;
 
-use Filament\Tables;
+use App\Enums\CustomerEnum;
+use App\Filament\Forms\CustomerForm;
+use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Enums\CustomerEnum;
 use Filament\Resources\Resource;
-use App\Filament\Forms\CustomerForm;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\CustomerResource\Pages;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomerResource extends Resource
@@ -37,9 +37,11 @@ class CustomerResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->label('নাম')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('balance')
-                    ->label('বর্তমান হিসাব'),
+                    ->label('বর্তমান হিসাব')
+                    ->sortable(),
                 TextColumn::make('mobile')
                     ->label('ফোন নাম্বার')
                     ->searchable()
@@ -66,6 +68,7 @@ class CustomerResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('name', 'asc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])

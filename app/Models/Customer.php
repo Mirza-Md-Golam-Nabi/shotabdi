@@ -6,6 +6,7 @@ use App\Models\StockIn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Customer extends Model
 {
@@ -50,5 +51,10 @@ class Customer extends Model
     public function isNormal(): bool
     {
         return $this->type === CustomerEnum::NORMAL;
+    }
+
+    public static function selectOption(string $sort = 'asc'): Collection
+    {
+        return self::orderBy('name', $sort)->pluck('name', 'id');
     }
 }
