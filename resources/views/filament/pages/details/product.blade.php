@@ -33,7 +33,7 @@
                                 <x-filament::link :href="route($product['route'], [
                                     'customer_id' => $stock->customer_id,
                                 ])" color="" weight="thin">
-                                    {{ $stock->customer->name }}
+                                    {{ $stock->customer?->name }}
                                 </x-filament::link>
                             </td>
                             <td class="border px-1 py-1 text-right">
