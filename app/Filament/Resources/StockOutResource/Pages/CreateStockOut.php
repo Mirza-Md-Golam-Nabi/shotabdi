@@ -29,12 +29,13 @@ class CreateStockOut extends CreateRecord
         $this->date = $data['date'];
 
         foreach ($data['stock_outs'] as $stock) {
+            $multiply = $stock['product_id'] == 1 ? 30 : 1;
+
+            $stock['quantity'] *= $multiply;
+
             $amount      = $this->amount($stock);
             $balance     = $this->balance($stock);
             $customer_id = $stock['customer_id'];
-            $multiply    = $stock['product_id'] == 1 ? 30 : 1;
-
-            $stock['quantity'] *= $multiply;
 
             if (! $this->hasUnavailableStock($stock['product_id'], $stock['quantity'])) {
                 continue;

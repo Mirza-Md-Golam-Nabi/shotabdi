@@ -35,6 +35,8 @@ class EditStockOut extends EditRecord
         $rec = $this->record;
 
         $this->date = $rec->date;
+        $factor     = $rec->product_id == 1 ? 30 : 1;
+        $quantity   = $rec->quantity / $factor;
 
         $deposit = $this->tranBalance();
 
@@ -42,8 +44,9 @@ class EditStockOut extends EditRecord
 
         $this->form->fill([
              ...$this->form->getState(),
-            'deposit' => $deposit,
-            'amount'  => $amount,
+            'deposit'  => $deposit,
+            'amount'   => $amount,
+            'quantity' => $quantity,
         ]);
     }
 
@@ -257,9 +260,6 @@ class EditStockOut extends EditRecord
         $discount    = $rec->discount;
         $product_id  = $rec->product_id;
         $customer_id = $rec->customer_id;
-
-        $multiply = $product_id == 1 ? 30 : 1;
-        $quantity *= $multiply;
 
         $deposit = $this->tranBalance();
 
