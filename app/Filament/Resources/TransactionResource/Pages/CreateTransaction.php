@@ -36,7 +36,7 @@ class CreateTransaction extends CreateRecord
                     'amount'       => $amount,
                 ]);
 
-                $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
+                $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
                 $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
 
@@ -52,7 +52,7 @@ class CreateTransaction extends CreateRecord
                     'amount'       => $amount,
                 ]);
 
-                $operation = Customer::find($customer_id)?->isNormal() ? 'add' : 'subtract';
+                $operation = Customer::find($customer_id)?->isFarmer() ? 'add' : 'subtract';
                 $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
         }
