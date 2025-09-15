@@ -36,9 +36,9 @@ class Transaction extends Model
     public function getDetailAttribute(): string
     {
         if ($this->stock_in_id) {
-            $product = $this->stock_in->product;
-            $factor  = $product->id == 1 ? 30 : 1;
-            $unit    = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
+            $product  = $this->stock_in->product;
+            $factor   = $product->id == 1 ? 30 : 1;
+            $unit     = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
             $quantity = $this->stock_in->quantity / $factor;
             $rate     = number_format($this->stock_in->rate, 1);
 
@@ -46,9 +46,9 @@ class Transaction extends Model
         }
 
         if ($this->stock_out_id) {
-            $product = $this->stock_out->product;
-            $factor  = $product->id == 1 ? 30 : 1;
-            $unit    = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
+            $product  = $this->stock_out->product;
+            $factor   = $product->id == 1 ? 30 : 1;
+            $unit     = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
             $quantity = $this->stock_out->quantity / $factor;
             $rate     = number_format($this->stock_out->rate, 1);
 
@@ -82,7 +82,7 @@ class Transaction extends Model
         }
 
         if (in_array($this->cash_flow_id, [CashFlowEnum::DEPOSIT, CashFlowEnum::EXPENSE])) {
-            return $this->amount;
+            return $this->cash_flow_id == CashFlowEnum::EXPENSE ? $this->amount : -$this->amount;
         }
 
         return 0;
