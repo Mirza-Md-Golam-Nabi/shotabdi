@@ -2,6 +2,7 @@
 namespace App\Filament\Services;
 
 use App\Enums\CashFlowEnum;
+use App\Enums\ProductEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Models\Transaction;
 
@@ -9,7 +10,9 @@ class StockTransactionService
 {
     public function handleStockInTransactions(array $stock, string $date, int $stockInId, float $amount): void
     {
-        $type = $stock['product_id'] == 1 ? TransactionTypeEnum::EGG : TransactionTypeEnum::FEED;
+        $type = $stock['product_id'] == ProductEnum::EGG->value
+            ? TransactionTypeEnum::EGG
+            : TransactionTypeEnum::FEED;
 
         // Egg or Feed
         $this->createTransaction(
@@ -46,7 +49,9 @@ class StockTransactionService
 
     public function handleStockOutTransactions(array $stock, string $date, int $stockOutId, float $amount): void
     {
-        $type = $stock['product_id'] == 1 ? TransactionTypeEnum::EGG : TransactionTypeEnum::FEED;
+        $type = $stock['product_id'] == ProductEnum::EGG->value
+            ? TransactionTypeEnum::EGG
+            : TransactionTypeEnum::FEED;
 
         // Egg or Feed
         $this->createTransaction(

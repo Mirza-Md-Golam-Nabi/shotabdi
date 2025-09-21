@@ -36,7 +36,7 @@ class CreateTransaction extends CreateRecord
                     'amount'       => $amount,
                 ]);
 
-                $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
+                $operation = Customer::find($customer_id)?->transactionOperation(CashFlowEnum::DEPOSIT);
                 $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
 
@@ -52,7 +52,7 @@ class CreateTransaction extends CreateRecord
                     'amount'       => $amount,
                 ]);
 
-                $operation = Customer::find($customer_id)?->isFarmer() ? 'add' : 'subtract';
+                $operation = Customer::find($customer_id)?->transactionOperation(CashFlowEnum::EXPENSE);
                 $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
         }

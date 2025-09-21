@@ -48,6 +48,13 @@ class CustomerResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('type')
                     ->label('ধরণ')
+                    ->searchable(query: function ($query, string $search): void {
+                        $matching = collect(CustomerEnum::cases())
+                            ->filter(fn($case) => str_contains($case->bangla(), $search))
+                            ->map(fn($case) => $case->value);
+
+                        $query->whereIn('type', $matching);
+                    })
                     ->badge()
                     ->formatStateUsing(fn(CustomerEnum $state) => $state->bangla())
                     ->color(fn(CustomerEnum $state) => $state->color()),

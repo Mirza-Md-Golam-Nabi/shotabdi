@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Enums\CashFlowEnum;
+use App\Enums\ProductEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Model;
@@ -69,7 +70,7 @@ class Transaction extends Model
     public function effectOnBalance(Customer $customer): int
     {
         if ($this->stock_in_id && $this->cash_flow_id === CashFlowEnum::DEPOSIT) {
-            if ($this->stock_in?->product_id == 1) {
+            if ($this->stock_in?->product_id == ProductEnum::EGG->value) {
                 return $customer->isFarmer()
                     ? $this->amount
                     : -$this->amount;
@@ -82,7 +83,15 @@ class Transaction extends Model
         }
 
         if (in_array($this->cash_flow_id, [CashFlowEnum::DEPOSIT, CashFlowEnum::EXPENSE])) {
-            return $this->cash_flow_id == CashFlowEnum::EXPENSE ? $this->amount : -$this->amount;
+            if ($customer->isFarmer()) {
+                return $this->cash_flow_id == CashFlowEnum::DEPOSIT ? $this->amount : -$this->amount;
+            }
+
+            if ($customer->isNormal()) {
+                return $this->cash_flow_id == CashFlowEnum::DEPOSIT ? $this->amount : -$this->amount;
+            }
+
+            return $this->cash_flow_id == CashFlowEnum::DEPOSIT ? -$this->amount : $this->amount;
         }
 
         return 0;

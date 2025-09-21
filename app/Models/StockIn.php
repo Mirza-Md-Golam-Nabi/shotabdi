@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Enums\AvailableEnum;
+use App\Enums\ProductEnum;
 use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Model;
@@ -32,15 +33,22 @@ class StockIn extends Model
 
     public function getDisplayQuantityAttribute()
     {
-        return $this->product_id == 1
-        ? $this->quantity / 30
-        : $this->quantity;
+        return $this->product_id == ProductEnum::EGG->value
+            ? $this->quantity / 30
+            : $this->quantity;
     }
 
     public function getUnitAttribute()
     {
-        return $this->product_id == 1
-        ? 'খাঁচি'
-        : 'বস্তা';
+        return $this->product_id == ProductEnum::EGG->value
+            ? 'খাঁচি'
+            : 'বস্তা';
+    }
+
+    public static function hasAvailableStock(int $product_id): bool
+    {
+        return self::where('product_id', $product_id)
+            ->whereIn('is_available', [AvailableEnum::INACTIVE, AvailableEnum::ACTIVE])
+            ->exists();
     }
 }

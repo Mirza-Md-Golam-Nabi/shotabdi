@@ -2,6 +2,7 @@
 namespace App\Filament\Resources\StockInResource\Pages;
 
 use App\Enums\AvailableEnum;
+use App\Enums\ProductEnum;
 use App\Filament\Resources\StockInResource;
 use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
@@ -28,7 +29,7 @@ class CreateStockIn extends CreateRecord
         $this->date = $data['date'];
 
         foreach ($data['stock_ins'] as $stock) {
-            $multiply          = $stock['product_id'] == 1 ? 30 : 1;
+            $multiply          = $stock['product_id'] == ProductEnum::EGG->value ? 30 : 1;
             $stock['quantity'] = $stock['quantity'] * $multiply;
 
             $amount      = $this->amount($stock);
@@ -38,6 +39,13 @@ class CreateStockIn extends CreateRecord
             $this->stock_in = $stockIn = $this->createStockIn($stock);
 
             $this->updateOrCreateStock($stock);
+
+            /**
+             * These 3 types of customers have stock-in permission.
+             * 1. Company fund Add
+             * 2. Farmer Egg fund Subtract
+             * 3. Egg seller fund Add
+             */
 
             $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
@@ -51,13 +59,6 @@ class CreateStockIn extends CreateRecord
     protected function getRedirectUrl(): string
     {
         return static::getResource()::getUrl('create', ['date' => $this->date]);
-    }
-
-    protected function hasUnavailableStock($product_id): bool
-    {
-        return StockIn::where('product_id', $product_id)
-            ->whereIn('is_available', [AvailableEnum::INACTIVE, AvailableEnum::ACTIVE])
-            ->exists();
     }
 
     protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
@@ -77,10 +78,10 @@ class CreateStockIn extends CreateRecord
 
     protected function createStockIn(array $stock): StockIn
     {
-        $hasUnavailableStock = $this->hasUnavailableStock($stock['product_id']);
+        $hasAvailableStock = StockIn::hasAvailableStock($stock['product_id']);
 
         $is_available = AvailableEnum::INACTIVE;
-        if (! $hasUnavailableStock) {
+        if (! $hasAvailableStock) {
             $is_available = AvailableEnum::ACTIVE;
         }
 
