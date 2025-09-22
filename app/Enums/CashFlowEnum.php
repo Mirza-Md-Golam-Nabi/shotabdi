@@ -2,22 +2,22 @@
 namespace App\Enums;
 
 enum CashFlowEnum: int {
-    case DEPOSIT = 1;
-    case EXPENSE = 2;
+    case Deposit = 1;
+    case Expense = 2;
 
     public function description(): string
     {
         return match ($this) {
-            self::DEPOSIT => 'Deposit',
-            self::EXPENSE => 'Expense',
+            self::Deposit => 'Deposit',
+            self::Expense => 'Expense',
         };
     }
 
     public function bangla(): string
     {
         return match ($this) {
-            self::DEPOSIT => 'জমা',
-            self::EXPENSE => 'খরচ',
+            self::Deposit => 'জমা',
+            self::Expense => 'খরচ',
         };
     }
 

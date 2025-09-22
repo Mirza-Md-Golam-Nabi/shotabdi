@@ -29,9 +29,9 @@ class StockInSeeder extends Seeder
             $amount   = ($quantity * $rate) - $discount;
 
             $stock        = StockIn::where('product_id', $product_id)->first();
-            $is_available = AvailableEnum::INACTIVE;
+            $is_available = AvailableEnum::Inactive;
             if (! $stock) {
-                $is_available = AvailableEnum::ACTIVE;
+                $is_available = AvailableEnum::Active;
             }
 
             StockIn::create([

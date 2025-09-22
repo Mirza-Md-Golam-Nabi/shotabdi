@@ -102,18 +102,18 @@ class CreateStockOut extends CreateRecord
             $stock->decrement('available', $data['quantity']);
         } elseif ($stock->available == $data['quantity']) {
             StockIn::where('product_id', $data['product_id'])
-                ->where('is_available', AvailableEnum::ACTIVE)
-                ->update(['is_available' => AvailableEnum::FINISHED]);
+                ->where('is_available', AvailableEnum::Active)
+                ->update(['is_available' => AvailableEnum::Finished]);
 
             $stock_in = StockIn::where('product_id', $data['product_id'])
-                ->where('is_available', AvailableEnum::INACTIVE)
+                ->where('is_available', AvailableEnum::Inactive)
                 ->first();
 
             $stock->available = 0;
             if ($stock_in) {
                 $stock->available = $stock_in->quantity;
 
-                $stock_in->is_available = AvailableEnum::ACTIVE;
+                $stock_in->is_available = AvailableEnum::Active;
                 $stock_in->save();
             }
 
@@ -123,32 +123,32 @@ class CreateStockOut extends CreateRecord
             $remain = $data['quantity'] - $stock->available;
 
             StockIn::where('product_id', $data['product_id'])
-                ->where('is_available', AvailableEnum::ACTIVE)
-                ->update(['is_available' => AvailableEnum::FINISHED]);
+                ->where('is_available', AvailableEnum::Active)
+                ->update(['is_available' => AvailableEnum::Finished]);
 
             do {
                 $stock_in = StockIn::where('product_id', $data['product_id'])
-                    ->where('is_available', AvailableEnum::INACTIVE)
+                    ->where('is_available', AvailableEnum::Inactive)
                     ->first();
 
                 if ($remain > $stock_in->quantity) {
-                    $stock_in->is_available = AvailableEnum::FINISHED;
+                    $stock_in->is_available = AvailableEnum::Finished;
                     $remain -= $stock_in->quantity;
                 } elseif ($remain == $stock_in->quantity) {
-                    $stock_in->is_available = AvailableEnum::FINISHED;
+                    $stock_in->is_available = AvailableEnum::Finished;
                     $stock_in->save();
 
                     $stock_in = StockIn::where('product_id', $data['product_id'])
-                        ->where('is_available', AvailableEnum::INACTIVE)
+                        ->where('is_available', AvailableEnum::Inactive)
                         ->first();
 
-                    $stock_in->is_available = AvailableEnum::ACTIVE;
+                    $stock_in->is_available = AvailableEnum::Active;
                     $stock->available       = $stock_in->quantity;
                     $stock->save();
 
                     $remain = 0;
                 } else {
-                    $stock_in->is_available = AvailableEnum::ACTIVE;
+                    $stock_in->is_available = AvailableEnum::Active;
                     $stock->available       = $stock_in->quantity - $remain;
                     $stock->save();
                     $remain = 0;

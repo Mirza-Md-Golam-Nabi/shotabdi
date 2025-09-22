@@ -38,8 +38,8 @@ class Transaction extends Model
     {
         if ($this->stock_in_id) {
             $product  = $this->stock_in->product;
-            $factor   = $product->id == 1 ? 30 : 1;
-            $unit     = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
+            $factor   = $product->id == ProductEnum::Egg->value ? 30 : 1;
+            $unit     = $product->id == ProductEnum::Egg->value ? 'খাঁচি' : 'বস্তা';
             $quantity = $this->stock_in->quantity / $factor;
             $rate     = number_format($this->stock_in->rate, 1);
 
@@ -48,19 +48,19 @@ class Transaction extends Model
 
         if ($this->stock_out_id) {
             $product  = $this->stock_out->product;
-            $factor   = $product->id == 1 ? 30 : 1;
-            $unit     = $product->id == 1 ? 'খাঁচি' : 'বস্তা';
+            $factor   = $product->id == ProductEnum::Egg->value ? 30 : 1;
+            $unit     = $product->id == ProductEnum::Egg->value ? 'খাঁচি' : 'বস্তা';
             $quantity = $this->stock_out->quantity / $factor;
             $rate     = number_format($this->stock_out->rate, 1);
 
             return "{$product->name} ({$quantity} {$unit}, {$rate} দর)";
         }
 
-        if ($this->cash_flow_id === CashFlowEnum::DEPOSIT) {
+        if ($this->cash_flow_id === CashFlowEnum::Deposit) {
             return 'জমা';
         }
 
-        if ($this->cash_flow_id === CashFlowEnum::EXPENSE) {
+        if ($this->cash_flow_id === CashFlowEnum::Expense) {
             return 'খরচ';
         }
 
@@ -69,8 +69,8 @@ class Transaction extends Model
 
     public function effectOnBalance(Customer $customer): int
     {
-        if ($this->stock_in_id && $this->cash_flow_id === CashFlowEnum::DEPOSIT) {
-            if ($this->stock_in?->product_id == ProductEnum::EGG->value) {
+        if ($this->stock_in_id && $this->cash_flow_id === CashFlowEnum::Deposit) {
+            if ($this->stock_in?->product_id == ProductEnum::Egg->value) {
                 return $customer->isFarmer()
                     ? $this->amount
                     : -$this->amount;
@@ -78,20 +78,20 @@ class Transaction extends Model
             return -$this->amount;
         }
 
-        if ($this->stock_out_id && $this->cash_flow_id === CashFlowEnum::EXPENSE) {
+        if ($this->stock_out_id && $this->cash_flow_id === CashFlowEnum::Expense) {
             return -$this->amount;
         }
 
-        if (in_array($this->cash_flow_id, [CashFlowEnum::DEPOSIT, CashFlowEnum::EXPENSE])) {
+        if (in_array($this->cash_flow_id, [CashFlowEnum::Deposit, CashFlowEnum::Expense])) {
             if ($customer->isFarmer()) {
-                return $this->cash_flow_id == CashFlowEnum::DEPOSIT ? $this->amount : -$this->amount;
+                return $this->cash_flow_id == CashFlowEnum::Deposit ? $this->amount : -$this->amount;
             }
 
             if ($customer->isNormal()) {
-                return $this->cash_flow_id == CashFlowEnum::DEPOSIT ? $this->amount : -$this->amount;
+                return $this->cash_flow_id == CashFlowEnum::Deposit ? $this->amount : -$this->amount;
             }
 
-            return $this->cash_flow_id == CashFlowEnum::DEPOSIT ? -$this->amount : $this->amount;
+            return $this->cash_flow_id == CashFlowEnum::Deposit ? -$this->amount : $this->amount;
         }
 
         return 0;

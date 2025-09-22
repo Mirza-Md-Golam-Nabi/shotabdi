@@ -32,7 +32,7 @@ class ManageProducts extends ManageRecords
                             'quantity'     => $quantity,
                             'rate'         => 0,
                             'amount'       => 0,
-                            'is_available' => AvailableEnum::ACTIVE,
+                            'is_available' => AvailableEnum::Active,
                         ]);
 
                         Stock::create([

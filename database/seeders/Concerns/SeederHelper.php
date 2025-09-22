@@ -11,7 +11,7 @@ trait SeederHelper
             [
                 'name'   => 'কাউন এগ্রো ইন্ডা লিঃ',
                 'mobile' => '01712457896',
-                'type'   => CustomerEnum::COMPANY,
+                'type'   => CustomerEnum::Company,
             ],
             [
                 'name'   => 'হাসিব ভাই',

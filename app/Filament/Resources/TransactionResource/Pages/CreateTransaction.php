@@ -31,12 +31,12 @@ class CreateTransaction extends CreateRecord
                 $first = Transaction::create([
                     'customer_id'  => $customer_id,
                     'date'         => $data['date'],
-                    'cash_flow_id' => CashFlowEnum::DEPOSIT,
-                    'tran_type_id' => TransactionTypeEnum::DEPOSIT,
+                    'cash_flow_id' => CashFlowEnum::Deposit,
+                    'tran_type_id' => TransactionTypeEnum::Deposit,
                     'amount'       => $amount,
                 ]);
 
-                $operation = Customer::find($customer_id)?->transactionOperation(CashFlowEnum::DEPOSIT);
+                $operation = Customer::find($customer_id)?->transactionOperation(CashFlowEnum::Deposit);
                 $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
 
@@ -47,12 +47,12 @@ class CreateTransaction extends CreateRecord
                 $first = Transaction::create([
                     'customer_id'  => $tran['customer_id'],
                     'date'         => $data['date'],
-                    'cash_flow_id' => CashFlowEnum::EXPENSE,
-                    'tran_type_id' => TransactionTypeEnum::EXPENSE,
+                    'cash_flow_id' => CashFlowEnum::Expense,
+                    'tran_type_id' => TransactionTypeEnum::Expense,
                     'amount'       => $amount,
                 ]);
 
-                $operation = Customer::find($customer_id)?->transactionOperation(CashFlowEnum::EXPENSE);
+                $operation = Customer::find($customer_id)?->transactionOperation(CashFlowEnum::Expense);
                 $this->updateCustomerBalance($customer_id, $amount, $operation);
             }
         }

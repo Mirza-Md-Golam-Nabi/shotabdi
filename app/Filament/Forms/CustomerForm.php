@@ -47,7 +47,7 @@ class CustomerForm
                 ->options(CustomerEnum::options())
                 ->inline()
                 ->inlineLabel(false)
-                ->default(CustomerEnum::NORMAL),
+                ->default(CustomerEnum::Normal),
         ];
     }
 }

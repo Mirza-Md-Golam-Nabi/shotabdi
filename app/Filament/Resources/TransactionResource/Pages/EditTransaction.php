@@ -32,12 +32,12 @@ class EditTransaction extends EditRecord
     {
         $this->transactionRollback();
 
-        if ($data['cash_flow_id'] == CashFlowEnum::DEPOSIT->value) {
-            $data['tran_type_id'] = TransactionTypeEnum::DEPOSIT->value;
+        if ($data['cash_flow_id'] == CashFlowEnum::Deposit->value) {
+            $data['tran_type_id'] = TransactionTypeEnum::Deposit->value;
         }
 
-        if ($data['cash_flow_id'] == CashFlowEnum::EXPENSE->value) {
-            $data['tran_type_id'] = TransactionTypeEnum::EXPENSE->value;
+        if ($data['cash_flow_id'] == CashFlowEnum::Expense->value) {
+            $data['tran_type_id'] = TransactionTypeEnum::Expense->value;
         }
 
         return $data;
@@ -51,12 +51,12 @@ class EditTransaction extends EditRecord
         $balance     = $form_data['amount'];
         $customer    = Customer::find($customer_id);
 
-        if (CashFlowEnum::DEPOSIT->value == $form_data['cash_flow_id']) {
+        if (CashFlowEnum::Deposit->value == $form_data['cash_flow_id']) {
             $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'add' : 'subtract';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
 
-        if (CashFlowEnum::EXPENSE->value == $form_data['cash_flow_id']) {
+        if (CashFlowEnum::Expense->value == $form_data['cash_flow_id']) {
             $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'subtract' : 'add';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
@@ -71,12 +71,12 @@ class EditTransaction extends EditRecord
         $balance     = $rec->amount;
         $customer    = Customer::find($customer_id);
 
-        if (CashFlowEnum::DEPOSIT == $rec->cash_flow_id) {
+        if (CashFlowEnum::Deposit == $rec->cash_flow_id) {
             $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'subtract' : 'add';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }
 
-        if (CashFlowEnum::EXPENSE == $rec->cash_flow_id) {
+        if (CashFlowEnum::Expense == $rec->cash_flow_id) {
             $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'add' : 'subtract';
             $this->updateCustomerBalance($customer_id, $balance, $operation);
         }

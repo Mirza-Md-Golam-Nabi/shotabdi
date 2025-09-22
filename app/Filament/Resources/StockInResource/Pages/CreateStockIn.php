@@ -29,7 +29,7 @@ class CreateStockIn extends CreateRecord
         $this->date = $data['date'];
 
         foreach ($data['stock_ins'] as $stock) {
-            $multiply          = $stock['product_id'] == ProductEnum::EGG->value ? 30 : 1;
+            $multiply          = $stock['product_id'] == ProductEnum::Egg->value ? 30 : 1;
             $stock['quantity'] = $stock['quantity'] * $multiply;
 
             $amount      = $this->amount($stock);
@@ -80,9 +80,9 @@ class CreateStockIn extends CreateRecord
     {
         $hasAvailableStock = StockIn::hasAvailableStock($stock['product_id']);
 
-        $is_available = AvailableEnum::INACTIVE;
+        $is_available = AvailableEnum::Inactive;
         if (! $hasAvailableStock) {
-            $is_available = AvailableEnum::ACTIVE;
+            $is_available = AvailableEnum::Active;
         }
 
         return StockIn::create([

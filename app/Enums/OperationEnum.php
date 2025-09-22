@@ -2,11 +2,11 @@
 namespace App\Enums;
 
 enum OperationEnum: string {
-    case ADD      = 'add';
-    case SUBTRACT = 'subtract';
+    case Add      = 'add';
+    case Subtract = 'subtract';
 
     public function reverse(): self
     {
-        return $this === self::ADD ? self::SUBTRACT : self::ADD;
+        return $this === self::Add ? self::Subtract : self::Add;
     }
 }

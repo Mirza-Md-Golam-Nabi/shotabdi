@@ -10,16 +10,16 @@ class StockTransactionService
 {
     public function handleStockInTransactions(array $stock, string $date, int $stockInId, float $amount): void
     {
-        $type = $stock['product_id'] == ProductEnum::EGG->value
-            ? TransactionTypeEnum::EGG
-            : TransactionTypeEnum::FEED;
+        $type = $stock['product_id'] == ProductEnum::Egg->value
+            ? TransactionTypeEnum::Egg
+            : TransactionTypeEnum::Feed;
 
         // Egg or Feed
         $this->createTransaction(
             $stock['customer_id'],
             $date,
             $amount,
-            CashFlowEnum::DEPOSIT,
+            CashFlowEnum::Deposit,
             $type,
             stock_in_id: $stockInId
         );
@@ -30,8 +30,8 @@ class StockTransactionService
                 $stock['customer_id'],
                 $date,
                 $stock['deposit'],
-                CashFlowEnum::DEPOSIT,
-                TransactionTypeEnum::DEPOSIT,
+                CashFlowEnum::Deposit,
+                TransactionTypeEnum::Deposit,
             );
         }
 
@@ -41,24 +41,24 @@ class StockTransactionService
                 $stock['customer_id'],
                 $date,
                 $stock['cashback'],
-                CashFlowEnum::EXPENSE,
-                TransactionTypeEnum::EXPENSE,
+                CashFlowEnum::Expense,
+                TransactionTypeEnum::Expense,
             );
         }
     }
 
     public function handleStockOutTransactions(array $stock, string $date, int $stockOutId, float $amount): void
     {
-        $type = $stock['product_id'] == ProductEnum::EGG->value
-            ? TransactionTypeEnum::EGG
-            : TransactionTypeEnum::FEED;
+        $type = $stock['product_id'] == ProductEnum::Egg->value
+            ? TransactionTypeEnum::Egg
+            : TransactionTypeEnum::Feed;
 
         // Egg or Feed
         $this->createTransaction(
             $stock['customer_id'],
             $date,
             $amount,
-            CashFlowEnum::EXPENSE,
+            CashFlowEnum::Expense,
             $type,
             stock_out_id: $stockOutId
         );
@@ -69,8 +69,8 @@ class StockTransactionService
                 $stock['customer_id'],
                 $date,
                 $stock['deposit'],
-                CashFlowEnum::DEPOSIT,
-                TransactionTypeEnum::DEPOSIT,
+                CashFlowEnum::Deposit,
+                TransactionTypeEnum::Deposit,
             );
         }
     }

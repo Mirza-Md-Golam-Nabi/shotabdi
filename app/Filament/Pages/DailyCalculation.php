@@ -64,8 +64,8 @@ class DailyCalculation extends Page
             ->get();
 
         // Deposits and expenses have been separated.
-        $deposits = $trans->where('cash_flow_id', CashFlowEnum::DEPOSIT)->values();
-        $expenses = $trans->where('cash_flow_id', CashFlowEnum::EXPENSE)->values();
+        $deposits = $trans->where('cash_flow_id', CashFlowEnum::Deposit)->values();
+        $expenses = $trans->where('cash_flow_id', CashFlowEnum::Expense)->values();
 
         // Store total calculation
         $deposit_sum = $deposits->sum('amount');

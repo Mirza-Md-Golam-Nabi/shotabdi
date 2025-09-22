@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('rate', 8, 2);
             $table->unsignedSmallInteger('discount')->nullable()->default(0);
             $table->decimal('amount', 12, 2);
-            $table->unsignedTinyInteger('is_available')->default(AvailableEnum::INACTIVE->value)->nullable();
+            $table->unsignedTinyInteger('is_available')->default(AvailableEnum::Inactive->value)->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->index('date');

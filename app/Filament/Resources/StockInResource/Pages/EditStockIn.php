@@ -242,18 +242,18 @@ class EditStockIn extends EditRecord
             'amount'
         )
             ->where('stock_in_id', $this->record->id ?? 0)
-            ->whereIn('tran_type_id', [TransactionTypeEnum::DEPOSIT, TransactionTypeEnum::EXPENSE])
+            ->whereIn('tran_type_id', [TransactionTypeEnum::Deposit, TransactionTypeEnum::Expense])
             ->get();
 
         $deposit  = 0;
         $cashback = 0;
 
         foreach ($transaction as $tran) {
-            if ($tran->tran_type_id == TransactionTypeEnum::DEPOSIT) {
+            if ($tran->tran_type_id == TransactionTypeEnum::Deposit) {
                 $deposit = $tran->amount;
             }
 
-            if ($tran->tran_type_id == TransactionTypeEnum::EXPENSE) {
+            if ($tran->tran_type_id == TransactionTypeEnum::Expense) {
                 $cashback = $tran->amount;
             }
         }

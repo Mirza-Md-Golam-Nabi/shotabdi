@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name', 255);
             $table->string('mobile', 15)->nullable();
             $table->mediumInteger('balance')->nullable()->default(0);
-            $table->tinyInteger('type')->nullable()->default(CustomerEnum::NORMAL);
+            $table->tinyInteger('type')->nullable()->default(CustomerEnum::Normal);
             $table->string('address', 255)->nullable();
             $table->timestamps();
             $table->softDeletes();

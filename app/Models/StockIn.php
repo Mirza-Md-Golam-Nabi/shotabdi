@@ -33,14 +33,14 @@ class StockIn extends Model
 
     public function getDisplayQuantityAttribute()
     {
-        return $this->product_id == ProductEnum::EGG->value
+        return $this->product_id == ProductEnum::Egg->value
             ? $this->quantity / 30
             : $this->quantity;
     }
 
     public function getUnitAttribute()
     {
-        return $this->product_id == ProductEnum::EGG->value
+        return $this->product_id == ProductEnum::Egg->value
             ? 'খাঁচি'
             : 'বস্তা';
     }
@@ -48,7 +48,7 @@ class StockIn extends Model
     public static function hasAvailableStock(int $product_id): bool
     {
         return self::where('product_id', $product_id)
-            ->whereIn('is_available', [AvailableEnum::INACTIVE, AvailableEnum::ACTIVE])
+            ->whereIn('is_available', [AvailableEnum::Inactive, AvailableEnum::Active])
             ->exists();
     }
 }

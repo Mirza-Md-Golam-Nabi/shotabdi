@@ -93,32 +93,32 @@ class EditStockOut extends EditRecord
             $remain = $data['quantity'] - $stock->available;
 
             StockIn::where('product_id', $data['product_id'])
-                ->where('is_available', AvailableEnum::ACTIVE)
-                ->update(['is_available' => AvailableEnum::FINISHED]);
+                ->where('is_available', AvailableEnum::Active)
+                ->update(['is_available' => AvailableEnum::Finished]);
 
             do {
                 $stock_in = StockIn::where('product_id', $data['product_id'])
-                    ->where('is_available', AvailableEnum::INACTIVE)
+                    ->where('is_available', AvailableEnum::Inactive)
                     ->first();
 
                 if ($remain > $stock_in->quantity) {
-                    $stock_in->is_available = AvailableEnum::FINISHED;
+                    $stock_in->is_available = AvailableEnum::Finished;
                     $remain -= $stock_in->quantity;
                 } elseif ($remain == $stock_in->quantity) {
-                    $stock_in->is_available = AvailableEnum::FINISHED;
+                    $stock_in->is_available = AvailableEnum::Finished;
                     $stock_in->save();
 
                     $stock_in = StockIn::where('product_id', $data['product_id'])
-                        ->where('is_available', AvailableEnum::INACTIVE)
+                        ->where('is_available', AvailableEnum::Inactive)
                         ->first();
 
-                    $stock_in->is_available = AvailableEnum::ACTIVE;
+                    $stock_in->is_available = AvailableEnum::Active;
                     $stock->available       = $stock_in->quantity;
                     $stock->save();
 
                     $remain = 0;
                 } else {
-                    $stock_in->is_available = AvailableEnum::ACTIVE;
+                    $stock_in->is_available = AvailableEnum::Active;
                     $stock->available       = $stock_in->quantity - $remain;
                     $stock->save();
                     $remain = 0;
@@ -248,7 +248,7 @@ class EditStockOut extends EditRecord
     protected function tranBalance(): float
     {
         return Transaction::where('stock_out_id', $this->record->id ?? 0)
-            ->where('tran_type_id', TransactionTypeEnum::DEPOSIT)
+            ->where('tran_type_id', TransactionTypeEnum::Deposit)
             ->sum('amount');
     }
 
@@ -272,7 +272,7 @@ class EditStockOut extends EditRecord
         $stock = Stock::where('product_id', $product_id)->first();
 
         $stock_in = StockIn::where('product_id', $product_id)
-            ->where('is_available', AvailableEnum::ACTIVE)
+            ->where('is_available', AvailableEnum::Active)
             ->first();
 
         if (($stock_in->quantity - $stock->available) >= $quantity) {
@@ -280,27 +280,27 @@ class EditStockOut extends EditRecord
             $stock->quantity  = $stock->quantity + $quantity;
             $stock->save();
         } else {
-            $stock_in->is_available = AvailableEnum::INACTIVE;
+            $stock_in->is_available = AvailableEnum::Inactive;
             $stock_in->save();
 
             $remain = $quantity - ($stock_in->quantity - $stock->available);
 
             while ($remain != 0) {
                 $stock_in = StockIn::where('product_id', $product_id)
-                    ->where('is_available', AvailableEnum::FINISHED)
+                    ->where('is_available', AvailableEnum::Finished)
                     ->orderBy('id', 'desc')
                     ->first();
 
                 if ($remain > $stock_in->quantity) {
                     $remain = $remain - $stock_in->quantity;
 
-                    $stock_in->is_available = AvailableEnum::INACTIVE;
+                    $stock_in->is_available = AvailableEnum::Inactive;
                     $stock_in->save();
                 } else {
                     $stock->available = $stock_in->quantity - $remain;
                     $stock->save();
 
-                    $stock_in->is_available = AvailableEnum::ACTIVE;
+                    $stock_in->is_available = AvailableEnum::Active;
                     $stock_in->save();
 
                     $remain = 0;

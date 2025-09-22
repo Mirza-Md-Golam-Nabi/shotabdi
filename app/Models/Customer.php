@@ -37,22 +37,22 @@ class Customer extends Model
 
     public function isCompany(): bool
     {
-        return $this->type === CustomerEnum::COMPANY;
+        return $this->type === CustomerEnum::Company;
     }
 
     public function isFarmer(): bool
     {
-        return $this->type === CustomerEnum::FARMER;
+        return $this->type === CustomerEnum::Farmer;
     }
 
     public function isEggSeller(): bool
     {
-        return $this->type === CustomerEnum::EGG_SELLER;
+        return $this->type === CustomerEnum::EggSeller;
     }
 
     public function isNormal(): bool
     {
-        return $this->type === CustomerEnum::NORMAL;
+        return $this->type === CustomerEnum::Normal;
     }
 
     public static function selectOption(string $sort = 'asc'): Collection
@@ -73,15 +73,15 @@ class Customer extends Model
     public function transactionOperation(CashFlowEnum $type, bool $reverse = false): string
     {
         $operation = match ($type) {
-            CashFlowEnum::DEPOSIT => match (true) {
-                $this->isCompany(), $this->isEggSeller() => OperationEnum::ADD,
-                $this->isFarmer(), $this->isNormal()     => OperationEnum::SUBTRACT,
-                default => OperationEnum::ADD,
+            CashFlowEnum::Deposit => match (true) {
+                $this->isCompany(), $this->isEggSeller() => OperationEnum::Add,
+                $this->isFarmer(), $this->isNormal()     => OperationEnum::Subtract,
+                default => OperationEnum::Add,
             },
-            CashFlowEnum::EXPENSE => match (true) {
-                $this->isCompany(), $this->isEggSeller() => OperationEnum::SUBTRACT,
-                $this->isFarmer(), $this->isNormal()     => OperationEnum::ADD,
-                default => OperationEnum::SUBTRACT,
+            CashFlowEnum::Expense => match (true) {
+                $this->isCompany(), $this->isEggSeller() => OperationEnum::Subtract,
+                $this->isFarmer(), $this->isNormal()     => OperationEnum::Add,
+                default => OperationEnum::Subtract,
             },
         };
 

@@ -2,31 +2,31 @@
 namespace App\Enums;
 
 enum CustomerEnum: int {
-    case NORMAL     = 1;
-    case FARMER     = 2;
-    case COMPANY    = 3;
-    case EGG_SELLER = 4;
-    case OTHERS     = 5;
+    case Normal    = 1;
+    case Farmer    = 2;
+    case Company   = 3;
+    case EggSeller = 4;
+    case Others    = 5;
 
     public function label(): string
     {
         return match ($this) {
-            self::NORMAL => 'Normal',
-            self::FARMER => 'Farmer',
-            self::COMPANY => 'Company',
-            self::EGG_SELLER => 'Egg Seller',
-            self::OTHERS => 'Others',
+            self::Normal    => 'Normal',
+            self::Farmer    => 'Farmer',
+            self::Company   => 'Company',
+            self::EggSeller => 'Egg Seller',
+            self::Others    => 'Others',
         };
     }
 
     public function bangla(): string
     {
         return match ($this) {
-            self::NORMAL => 'সাধারণ',
-            self::FARMER => 'খামারি',
-            self::COMPANY => 'কোম্পানি',
-            self::EGG_SELLER => 'ডিম বিক্রেতা',
-            self::OTHERS => 'অন্যান্য',
+            self::Normal    => 'সাধারণ',
+            self::Farmer    => 'খামারি',
+            self::Company   => 'কোম্পানি',
+            self::EggSeller => 'ডিম বিক্রেতা',
+            self::Others    => 'অন্যান্য',
         };
     }
 
@@ -44,11 +44,11 @@ enum CustomerEnum: int {
     public function color(): string
     {
         return match ($this) {
-            self::NORMAL => 'primary',
-            self::FARMER => 'success',
-            self::COMPANY => 'danger',
-            self::EGG_SELLER => 'info',
-            self::OTHERS => 'gray',
+            self::Normal    => 'primary',
+            self::Farmer    => 'success',
+            self::Company   => 'danger',
+            self::EggSeller => 'info',
+            self::Others    => 'gray',
         };
     }
 }
