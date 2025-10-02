@@ -13,13 +13,15 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Log;
 
 class EditTransaction extends EditRecord
 {
     protected static string $resource = TransactionResource::class;
 
     public ?string $incoming_date = null;
+
+    public ?Customer $prev_customer    = null;
+    public ?Customer $current_customer = null;
 
     public function mount($record): void
     {
@@ -28,17 +30,46 @@ class EditTransaction extends EditRecord
         $this->incoming_date = $this->record->date;
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $this->prev_customer = Customer::find($data['customer_id']);
+
+        $data['cash_flow_id'] = $this->prev_customer->isBank()
+            ? CashFlowEnum::from($data['cash_flow_id'])->reverse()->value
+            : $data['cash_flow_id'];
+
+        return $data;
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $this->transactionRollback();
 
-        if ($data['cash_flow_id'] == CashFlowEnum::Deposit->value) {
-            $data['tran_type_id'] = TransactionTypeEnum::Deposit->value;
+        $customer = $this->current_customer = Customer::find($data['customer_id']);
+
+        $cash_flow = CashFlowEnum::from($data['cash_flow_id']);
+
+        $tran_type = $cash_flow == CashFlowEnum::Deposit
+            ? TransactionTypeEnum::Deposit
+            : TransactionTypeEnum::Expense;
+
+        /**
+         * If the customer is a bank,
+         * the cash flow value will be reversed:
+         * - Deposit becomes Expense
+         * - Expense becomes Deposit
+         *
+         * This is because for bank customers, the meaning of deposit and expense
+         * is opposite compared to regular customers.
+         */
+
+        if ($customer->isBank()) {
+            $cash_flow = $cash_flow->reverse();
+            $tran_type = $tran_type->reverse();
         }
 
-        if ($data['cash_flow_id'] == CashFlowEnum::Expense->value) {
-            $data['tran_type_id'] = TransactionTypeEnum::Expense->value;
-        }
+        $data['cash_flow_id'] = $cash_flow->value;
+        $data['tran_type_id'] = $tran_type->value;
 
         return $data;
     }
@@ -49,19 +80,16 @@ class EditTransaction extends EditRecord
 
         $customer_id = $form_data['customer_id'];
         $balance     = $form_data['amount'];
-        $customer    = Customer::find($customer_id);
+        $customer    = $this->current_customer;
 
-        if (CashFlowEnum::Deposit->value == $form_data['cash_flow_id']) {
-            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'add' : 'subtract';
-            $this->updateCustomerBalance($customer_id, $balance, $operation);
+        $cash_flow = CashFlowEnum::from($form_data['cash_flow_id']);
+
+        if ($customer->isBank()) {
+            $cash_flow = $cash_flow->reverse();
         }
 
-        if (CashFlowEnum::Expense->value == $form_data['cash_flow_id']) {
-            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'subtract' : 'add';
-            $this->updateCustomerBalance($customer_id, $balance, $operation);
-        }
-
-        Log::info(json_encode(['afterSave', $operation, $balance]));
+        $operation = $customer->transactionOperation($cash_flow);
+        $this->updateCustomerBalance($customer_id, $balance, $operation);
     }
 
     protected function transactionRollback(): void
@@ -69,19 +97,11 @@ class EditTransaction extends EditRecord
         $rec         = $this->record; // transactions table data
         $customer_id = $rec->customer_id;
         $balance     = $rec->amount;
-        $customer    = Customer::find($customer_id);
+        $customer    = $this->prev_customer;
 
-        if (CashFlowEnum::Deposit == $rec->cash_flow_id) {
-            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'subtract' : 'add';
-            $this->updateCustomerBalance($customer_id, $balance, $operation);
-        }
+        $operation = $customer?->transactionOperation($rec->cash_flow_id, true);
 
-        if (CashFlowEnum::Expense == $rec->cash_flow_id) {
-            $operation = $customer?->isEggSeller() || $customer?->isCompany() ? 'add' : 'subtract';
-            $this->updateCustomerBalance($customer_id, $balance, $operation);
-        }
-
-        Log::info(json_encode(['rollback', $operation, $balance]));
+        $this->updateCustomerBalance($customer_id, $balance, $operation);
     }
 
     public function form(Form $form): Form

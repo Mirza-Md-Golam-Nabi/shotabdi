@@ -21,14 +21,30 @@ enum CashFlowEnum: int {
         };
     }
 
-    public static function options(): array
+    public function bank(): string
+    {
+        return match ($this) {
+            self::Deposit => 'জমা',
+            self::Expense => 'উত্তোলন',
+        };
+    }
+
+    public static function options(string $type = 'bangla'): array
     {
         return collect(self::cases())
-            ->mapWithKeys(function ($case) {
+            ->mapWithKeys(function ($case) use ($type) {
                 return [
-                    $case->value => $case->bangla(),
+                    $case->value => $type == 'bangla' ? $case->bangla() : $case->bank(),
                 ];
             })
             ->toArray();
+    }
+
+    public function reverse(): self
+    {
+        return match ($this) {
+            self::Deposit => self::Expense,
+            self::Expense => self::Deposit,
+        };
     }
 }

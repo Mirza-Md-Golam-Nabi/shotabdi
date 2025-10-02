@@ -34,6 +34,11 @@ class Transaction extends Model
         return $this->belongsTo(StockOut::class, 'stock_out_id', 'id');
     }
 
+    public static function deleteByColumn(string $column_name, array $id): bool
+    {
+        return self::whereIn($column_name, $id)->delete() > 0;
+    }
+
     public function getDetailAttribute(): string
     {
         if ($this->stock_in_id) {

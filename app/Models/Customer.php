@@ -55,9 +55,35 @@ class Customer extends Model
         return $this->type === CustomerEnum::Normal;
     }
 
+    public function isOther(): bool
+    {
+        return $this->type === CustomerEnum::Others;
+    }
+
+    public function isBank(): bool
+    {
+        return $this->type === CustomerEnum::Bank;
+    }
+
     public static function selectOption(string $sort = 'asc'): Collection
     {
         return self::orderBy('name', $sort)->pluck('name', 'id');
+    }
+
+    public static function bankOption(string $sort = 'asc'): array
+    {
+        return self::where('type', CustomerEnum::Bank)
+            ->orderBy('name', $sort)
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
+    public static function customerWithoutBank(string $sort = 'asc'): array
+    {
+        return self::where('type', '!=', CustomerEnum::Bank)
+            ->orderBy('name', $sort)
+            ->pluck('name', 'id')
+            ->toArray();
     }
 
     public function stockInOperation()
@@ -74,13 +100,13 @@ class Customer extends Model
     {
         $operation = match ($type) {
             CashFlowEnum::Deposit => match (true) {
-                $this->isCompany(), $this->isEggSeller() => OperationEnum::Add,
-                $this->isFarmer(), $this->isNormal()     => OperationEnum::Subtract,
+                $this->isCompany(), $this->isEggSeller(), $this->isBank() => OperationEnum::Add,
+                $this->isFarmer(), $this->isNormal(), $this->isOther() => OperationEnum::Subtract,
                 default => OperationEnum::Add,
             },
             CashFlowEnum::Expense => match (true) {
-                $this->isCompany(), $this->isEggSeller() => OperationEnum::Subtract,
-                $this->isFarmer(), $this->isNormal()     => OperationEnum::Add,
+                $this->isCompany(), $this->isEggSeller(), $this->isBank() => OperationEnum::Subtract,
+                $this->isFarmer(), $this->isNormal(), $this->isOther() => OperationEnum::Add,
                 default => OperationEnum::Subtract,
             },
         };
@@ -88,5 +114,14 @@ class Customer extends Model
         return $reverse
             ? $operation->reverse()->value
             : $operation->value;
+    }
+
+    public function updateBalance(int $balance, string $operation = 'add'): bool
+    {
+        return match ($operation) {
+            'add'      => (bool) $this->increment('balance', $balance),
+            'subtract' => (bool) $this->decrement('balance', $balance),
+            default    => false,
+        };
     }
 }

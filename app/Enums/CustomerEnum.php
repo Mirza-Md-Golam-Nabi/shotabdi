@@ -7,6 +7,7 @@ enum CustomerEnum: int {
     case Company   = 3;
     case EggSeller = 4;
     case Others    = 5;
+    case Bank      = 6;
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum CustomerEnum: int {
             self::Company   => 'Company',
             self::EggSeller => 'Egg Seller',
             self::Others    => 'Others',
+            self::Bank      => 'Bank',
         };
     }
 
@@ -27,6 +29,7 @@ enum CustomerEnum: int {
             self::Company   => 'কোম্পানি',
             self::EggSeller => 'ডিম বিক্রেতা',
             self::Others    => 'অন্যান্য',
+            self::Bank      => 'ব্যাংক',
         };
     }
 
@@ -49,6 +52,7 @@ enum CustomerEnum: int {
             self::Company   => 'danger',
             self::EggSeller => 'info',
             self::Others    => 'gray',
+            self::Bank      => 'danger',
         };
     }
 }

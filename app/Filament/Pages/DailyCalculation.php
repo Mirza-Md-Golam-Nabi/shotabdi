@@ -2,6 +2,9 @@
 namespace App\Filament\Pages;
 
 use App\Enums\CashFlowEnum;
+use App\Enums\CustomerEnum;
+use App\Enums\TransactionTypeEnum;
+use App\Models\BankTransaction;
 use App\Models\Distribute;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -22,6 +25,8 @@ class DailyCalculation extends Page
 
     public array $transactions;
 
+    public object $bankTransactions;
+
     public array $sum;
 
     public array $date;
@@ -40,6 +45,7 @@ class DailyCalculation extends Page
             'current'          => 'filament.admin.pages.daily-calculation',
             'transaction_edit' => 'filament.admin.resources.transactions.edit',
             'customer_detail'  => 'filament.admin.pages.details-customer',
+            'bank_tran_edit'   => 'filament.admin.resources.bank-transactions.edit',
         ];
 
         $date_parse = Carbon::parse($date_select);
@@ -56,16 +62,32 @@ class DailyCalculation extends Page
         ?->toArray();
 
         // Load all transaction data
-        $trans = Transaction::with('customer:id,name')
+        $trans = Transaction::with('customer:id,name,type')
             ->select('id', 'customer_id', 'cash_flow_id', 'amount')
             ->where('date', $date_select)
+            ->where('tran_type_id', '!=', TransactionTypeEnum::BankTransaction)
             ->whereNull('stock_in_id')
             ->whereNull('stock_out_id')
             ->get();
 
         // Deposits and expenses have been separated.
-        $deposits = $trans->where('cash_flow_id', CashFlowEnum::Deposit)->values();
-        $expenses = $trans->where('cash_flow_id', CashFlowEnum::Expense)->values();
+        $deposits = $trans->filter(function ($tran) {
+            $isBankCustomer = $tran->customer->isBank();
+
+            return $isBankCustomer
+                ? $tran->cash_flow_id == CashFlowEnum::Expense
+                : $tran->cash_flow_id == CashFlowEnum::Deposit;
+        })
+            ->values();
+
+        $expenses = $trans->filter(function ($tran) {
+            $isBankCustomer = $tran->customer->isBank();
+
+            return $isBankCustomer
+                ? $tran->cash_flow_id == CashFlowEnum::Deposit
+                : $tran->cash_flow_id == CashFlowEnum::Expense;
+        })
+            ->values();
 
         // Store total calculation
         $deposit_sum = $deposits->sum('amount');
@@ -99,6 +121,17 @@ class DailyCalculation extends Page
                     ];
                 })->toArray();
         }
+
+        // Bank Transaction
+        $this->bankTransactions = BankTransaction::with('from_customer:id,name', 'to_customer:id,name,type')
+            ->where('date', $date_select)
+            ->get()
+            ->map(function ($bank) {
+                $bank->amount    = number_format($bank->amount);
+                $type            = $bank->to_customer->type == CustomerEnum::Bank ? 'জমা' : 'উত্তোলন';
+                $bank->tran_type = $type;
+                return $bank;
+            });
     }
 
     public function getHeaderActions(): array

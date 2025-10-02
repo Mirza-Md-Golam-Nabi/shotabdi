@@ -130,8 +130,59 @@
                 </tbody>
             </table>
         </div>
+
         <div>
             <x-filament-actions::actions class="mt-2" :actions="$this->getHeaderActions()" />
+        </div>
+
+        <div class="w-full overflow-x-auto mt-3">
+            <h3>ব্যাংক লেনদেন</h3>
+            <table class="w-full text-xs sm:text-sm text-left text-gray-500 dark:text-gray-400 border border-gray-300">
+                <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                    <tr class="text-center">
+                        <th class="border border-gray-300 px-4 py-1">প্রেরক</th>
+                        <th class="border border-gray-300 px-4 py-1">প্রাপক</th>
+                        <th class="border border-gray-300 px-4 py-1">টাকা</th>
+                        <th class="border border-gray-300 px-4 py-1">লেনদেনের ধরণ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($bankTransactions as $bank)
+                        <tr class="{{ $loop->odd ? $odd : $even }} border-b border-gray-300">
+                            <td class="border border-gray-300 px-1 py-1">
+                                <x-filament::icon-button icon="heroicon-m-pencil-square" color="success" icon-size="sm"
+                                    :href="route($route['bank_tran_edit'], [
+                                        'record' => $bank->id,
+                                    ])" tag="a" class="inline-flex" />
+                                <x-filament::link :href="route($route['customer_detail'], [
+                                    'customer_id' => $bank->from,
+                                ])" color="" weight="thin">
+                                    {{ $bank->from_customer->name }}
+                                </x-filament::link>
+                            </td>
+                            <td class="border border-gray-300 px-1 py-1">
+                                <x-filament::link :href="route($route['customer_detail'], [
+                                    'customer_id' => $bank->to,
+                                ])" color="" weight="thin">
+                                    {{ $bank->to_customer->name }}
+                                </x-filament::link>
+                            </td>
+                            <td class="border border-gray-300 px-1 py-1 text-right">
+                                {{ $bank->amount }}
+                            </td>
+                            <td class="border border-gray-300 px-1 py-1 text-right">
+                                {{ $bank->tran_type }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr class="bg-white dark:bg-gray-800 border-b border-gray-300">
+                            <td class="border border-gray-300 px-1 py-1 text-center" colspan="4">
+                                There is no data
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 

@@ -4,9 +4,10 @@ namespace App\Filament\Services;
 use App\Enums\CashFlowEnum;
 use App\Enums\ProductEnum;
 use App\Enums\TransactionTypeEnum;
+use App\Models\BankTransaction;
 use App\Models\Transaction;
 
-class StockTransactionService
+class TransactionService
 {
     public function handleStockInTransactions(array $stock, string $date, int $stockInId, float $amount): void
     {
@@ -75,7 +76,7 @@ class StockTransactionService
         }
     }
 
-    protected function createTransaction(
+    public function createTransaction(
         int $customer_id,
         string $date,
         float $amount,
@@ -83,7 +84,7 @@ class StockTransactionService
         TransactionTypeEnum $tran_type_id,
         ?int $stock_in_id = null,
         ?int $stock_out_id = null,
-    ): void {
+    ): Transaction {
         $data = [
             'customer_id'  => $customer_id,
             'date'         => $date,
@@ -100,6 +101,29 @@ class StockTransactionService
             $data['stock_out_id'] = $stock_out_id;
         }
 
-        Transaction::create($data);
+        return Transaction::create($data);
+    }
+
+    public function bankTransaction(
+        string $date,
+        int $amount,
+        ?int $from = null,
+        ?int $tran_id_from = null,
+        ?int $to = null,
+        ?int $tran_id_to = null
+    ): BankTransaction {
+        $data = compact('date', 'amount');
+
+        if ($from !== null) {
+            $data['from']         = $from;
+            $data['tran_id_from'] = $tran_id_from;
+        }
+
+        if ($to !== null) {
+            $data['to']         = $to;
+            $data['tran_id_to'] = $tran_id_to;
+        }
+
+        return BankTransaction::create($data);
     }
 }

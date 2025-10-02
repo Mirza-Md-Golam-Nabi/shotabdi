@@ -9,33 +9,34 @@ trait SeederHelper
     {
         return [
             [
-                'name'   => 'কাউন এগ্রো ইন্ডা লিঃ',
+                'name'   => 'Company',
                 'mobile' => '01712457896',
                 'type'   => CustomerEnum::Company,
             ],
             [
-                'name'   => 'হাসিব ভাই',
-                'mobile' => '01712457885',
+                'name'   => 'Farmer',
+                'mobile' => '01854457896',
+                'type'   => CustomerEnum::Farmer,
             ],
             [
-                'name'   => 'শফিক চাচা',
-                'mobile' => '01712457844',
+                'name'   => 'Normal',
+                'mobile' => '01365457896',
+                'type'   => CustomerEnum::Normal,
             ],
             [
-                'name'   => 'রতন ভাই',
-                'mobile' => '01712457874',
+                'name'   => 'Egg Seller',
+                'mobile' => '01958457896',
+                'type'   => CustomerEnum::EggSeller,
             ],
             [
-                'name'   => 'সুলতান চাচা',
-                'mobile' => '01712457884',
+                'name'   => 'Bank',
+                'mobile' => '01748457896',
+                'type'   => CustomerEnum::Bank,
             ],
             [
-                'name'   => 'রফিক কাকা',
-                'mobile' => '01712457811',
-            ],
-            [
-                'name'   => 'রহিম ভাই',
-                'mobile' => '01712457814',
+                'name'   => 'Other',
+                'mobile' => '01654457896',
+                'type'   => CustomerEnum::Others,
             ],
         ];
     }

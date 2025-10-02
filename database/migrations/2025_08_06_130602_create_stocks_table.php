@@ -15,7 +15,7 @@ return new class extends Migration
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('product_id');
             $table->unsignedMediumInteger('quantity');
-            $table->unsignedSmallInteger('available');
+            $table->unsignedMediumInteger('available');
             $table->timestamps();
         });
     }

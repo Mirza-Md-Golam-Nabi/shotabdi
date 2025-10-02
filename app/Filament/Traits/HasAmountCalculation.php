@@ -1,6 +1,8 @@
 <?php
 namespace App\Filament\Traits;
 
+use App\Enums\ProductEnum;
+
 trait HasAmountCalculation
 {
     protected static function stockInUpdateAmount($set, $get): void
@@ -11,7 +13,7 @@ trait HasAmountCalculation
         $discount   = (float) $get('discount') ?? 0;
         $deposit    = (float) $get('deposit') ?? 0;
         $cashback   = (float) $get('cashback') ?? 0;
-        $multiply   = $product_id == 1 ? 30 : 1;
+        $multiply   = $product_id == ProductEnum::Egg->value ? 30 : 1;
         $sub_total  = round($quantity * $multiply * $rate);
 
         $amount = $sub_total + $deposit - $discount - $cashback;
@@ -25,7 +27,7 @@ trait HasAmountCalculation
         $rate       = (float) $get('rate') ?? 0;
         $discount   = (float) $get('discount') ?? 0;
         $deposit    = (float) $get('deposit') ?? 0;
-        $multiply   = $product_id == 1 ? 30 : 1;
+        $multiply   = $product_id == ProductEnum::Egg->value ? 30 : 1;
         $sub_total  = round($quantity * $multiply * $rate);
 
         $amount = $sub_total - $discount - $deposit;
