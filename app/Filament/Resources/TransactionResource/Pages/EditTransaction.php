@@ -5,7 +5,6 @@ use App\Enums\CashFlowEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\TransactionResource;
-use App\Filament\Services\CustomerService;
 use App\Models\Customer;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
@@ -89,19 +88,17 @@ class EditTransaction extends EditRecord
         }
 
         $operation = $customer->transactionOperation($cash_flow);
-        $this->updateCustomerBalance($customer_id, $balance, $operation);
+        $customer?->updateBalance($balance, $operation);
     }
 
     protected function transactionRollback(): void
     {
-        $rec         = $this->record; // transactions table data
-        $customer_id = $rec->customer_id;
-        $balance     = $rec->amount;
-        $customer    = $this->prev_customer;
+        $rec      = $this->record; // transactions table data
+        $balance  = $rec->amount;
+        $customer = $this->prev_customer;
 
         $operation = $customer?->transactionOperation($rec->cash_flow_id, true);
-
-        $this->updateCustomerBalance($customer_id, $balance, $operation);
+        $customer?->updateBalance($balance, $operation);
     }
 
     public function form(Form $form): Form
@@ -150,10 +147,5 @@ class EditTransaction extends EditRecord
         return route('filament.admin.pages.daily-calculation', [
             'date' => $this->incoming_date,
         ]);
-    }
-
-    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
-    {
-        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 }

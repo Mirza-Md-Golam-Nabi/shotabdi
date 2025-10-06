@@ -2,9 +2,9 @@
 namespace App\Filament\Resources\StockInResource\Pages;
 
 use App\Enums\AvailableEnum;
+use App\Enums\CashFlowEnum;
 use App\Enums\ProductEnum;
 use App\Filament\Resources\StockInResource;
-use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Models\Customer;
 use App\Models\Stock;
@@ -47,8 +47,9 @@ class CreateStockIn extends CreateRecord
              * 3. Egg seller fund Add
              */
 
-            $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
-            $this->updateCustomerBalance($customer_id, $balance, $operation);
+            $customer  = Customer::find($customer_id);
+            $operation = $customer?->transactionOperation(CashFlowEnum::Deposit);
+            $customer?->updateBalance($balance, $operation);
 
             $this->saveStockInTransaction($stock, $amount, $stockIn);
         }
@@ -59,11 +60,6 @@ class CreateStockIn extends CreateRecord
     protected function getRedirectUrl(): string
     {
         return static::getResource()::getUrl('create', ['date' => $this->date]);
-    }
-
-    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
-    {
-        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 
     protected function amount(array $data)

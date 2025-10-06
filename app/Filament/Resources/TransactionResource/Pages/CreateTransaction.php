@@ -4,7 +4,6 @@ namespace App\Filament\Resources\TransactionResource\Pages;
 use App\Enums\CashFlowEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Resources\TransactionResource;
-use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Models\Customer;
 use Filament\Resources\Pages\CreateRecord;
@@ -65,7 +64,7 @@ class CreateTransaction extends CreateRecord
                 );
 
                 $operation = $customer?->transactionOperation($cash_flow);
-                $this->updateCustomerBalance($customer_id, $amount, $operation);
+                $customer->updateBalance($amount, $operation);
             }
 
             if (! empty($tran['expense_amount'])) {
@@ -102,16 +101,11 @@ class CreateTransaction extends CreateRecord
                 );
 
                 $operation = $customer?->transactionOperation($cash_flow);
-                $this->updateCustomerBalance($customer_id, $amount, $operation);
+                $customer?->updateBalance($amount, $operation);
             }
         }
 
         return $first;
-    }
-
-    private function updateCustomerBalance($customer_id, $balance, $operation = 'add')
-    {
-        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 
     protected function getRedirectUrl(): string

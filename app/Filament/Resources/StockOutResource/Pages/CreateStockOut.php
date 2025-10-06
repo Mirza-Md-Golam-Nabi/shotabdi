@@ -2,8 +2,8 @@
 namespace App\Filament\Resources\StockOutResource\Pages;
 
 use App\Enums\AvailableEnum;
+use App\Enums\CashFlowEnum;
 use App\Filament\Resources\StockOutResource;
-use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Models\Customer;
 use App\Models\Stock;
@@ -45,8 +45,9 @@ class CreateStockOut extends CreateRecord
 
             $this->updateStock($stock);
 
-            $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
-            $this->updateCustomerBalance($customer_id, $balance, $operation);
+            $customer  = Customer::find($customer_id);
+            $operation = $customer?->transactionOperation(CashFlowEnum::Expense);
+            $customer?->updateBalance($balance, $operation);
 
             $this->saveStockOutTransaction($stock, $amount, $stockOut);
         }
@@ -64,11 +65,6 @@ class CreateStockOut extends CreateRecord
         return Stock::where('product_id', $product_id)
             ->where('quantity', '>=', $quantity)
             ->exists();
-    }
-
-    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add'): void
-    {
-        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 
     protected function amount(array $data)

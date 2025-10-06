@@ -2,10 +2,10 @@
 namespace App\Filament\Resources\StockOutResource\Pages;
 
 use App\Enums\AvailableEnum;
+use App\Enums\CashFlowEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
 use App\Filament\Resources\StockOutResource;
-use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Filament\Traits\HasAmountCalculation;
 use App\Models\Customer;
@@ -75,8 +75,9 @@ class EditStockOut extends EditRecord
         $balance     = $amount - $form_data['deposit'];
         $customer_id = $form_data['customer_id'];
 
-        $operation = Customer::find($customer_id)?->isEggSeller() ? 'subtract' : 'add';
-        $this->updateCustomerBalance($customer_id, $balance, $operation);
+        $customer  = Customer::find($customer_id);
+        $operation = $customer?->transactionOperation(CashFlowEnum::Expense);
+        $customer?->updateBalance($balance, $operation);
 
         $this->updateStock($form_data);
 
@@ -266,8 +267,9 @@ class EditStockOut extends EditRecord
         $amount  = round($rate * $quantity) - $discount;
         $balance = $amount - $deposit;
 
-        $operation = Customer::find($customer_id)?->isEggSeller() ? 'add' : 'subtract';
-        $this->updateCustomerBalance($customer_id, $balance, $operation);
+        $customer  = Customer::find($customer_id);
+        $operation = $customer?->transactionOperation(CashFlowEnum::Expense, true);
+        $customer?->updateBalance($balance, $operation);
 
         $stock = Stock::where('product_id', $product_id)->first();
 
@@ -311,10 +313,5 @@ class EditStockOut extends EditRecord
 
         Transaction::where('stock_out_id', $rec->id)
             ->delete();
-    }
-
-    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')
-    {
-        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 }

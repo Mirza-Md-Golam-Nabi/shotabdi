@@ -1,15 +1,14 @@
 <?php
 namespace App\Filament\Resources\StockInResource\Pages;
 
+use App\Enums\CashFlowEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Resources\StockInResource;
-use App\Filament\Services\CustomerService;
 use App\Filament\Traits\HandlesTransactions;
 use App\Filament\Traits\HasAmountCalculation;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Stock;
-use App\Models\StockIn;
 use App\Models\Transaction;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
@@ -37,7 +36,7 @@ class EditStockIn extends EditRecord
 
         [$deposit, $cashback] = $this->tranBalance();
 
-        $amount = ($rec->rate * $rec->quantity) - $rec->discount + $deposit - $cashback;
+        $amount   = round(($rec->rate * $rec->quantity) - $rec->discount + $deposit - $cashback);
         $quantity = $rec->quantity / $factor;
 
         $this->form->fill([
@@ -75,8 +74,9 @@ class EditStockIn extends EditRecord
         $balance     = $amount + $form_data['deposit'] - $form_data['cashback'];
         $customer_id = $form_data['customer_id'];
 
-        $operation = Customer::find($customer_id)?->isFarmer() ? 'subtract' : 'add';
-        $this->updateCustomerBalance($customer_id, $balance, $operation);
+        $customer  = Customer::find($customer_id);
+        $operation = $customer?->transactionOperation(CashFlowEnum::Deposit);
+        $customer?->updateBalance($balance, $operation);
 
         $st = Stock::where('product_id', $form_data['product_id'])->first();
 
@@ -275,8 +275,9 @@ class EditStockIn extends EditRecord
         $amount  = round($rate * $quantity) - $discount;
         $balance = $amount + $deposit - $cashback;
 
-        $operation = Customer::find($customer_id)?->isFarmer() ? 'add' : 'subtract';
-        $this->updateCustomerBalance($customer_id, $balance, $operation);
+        $customer  = Customer::find($customer_id);
+        $operation = $customer?->transactionOperation(CashFlowEnum::Deposit, true);
+        $customer->updateBalance($balance, $operation);
 
         if ($rec->is_available == 1) {
             Stock::where('product_id', $product_id)
@@ -293,10 +294,5 @@ class EditStockIn extends EditRecord
 
         Transaction::where('stock_in_id', $rec->id)
             ->delete();
-    }
-
-    protected function updateCustomerBalance($customer_id, $balance, $operation = 'add')
-    {
-        (new CustomerService())->updateBalance($customer_id, $balance, $operation);
     }
 }
