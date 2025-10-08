@@ -100,13 +100,13 @@ class Customer extends Model
     {
         $operation = match ($type) {
             CashFlowEnum::Deposit => match (true) {
-                $this->isCompany(), $this->isEggSeller(), $this->isBank() => OperationEnum::Add,
-                $this->isFarmer(), $this->isNormal(), $this->isOther() => OperationEnum::Subtract,
+                $this->isCompany(), $this->isBank() => OperationEnum::Add,
+                $this->isFarmer(), $this->isEggSeller(), $this->isNormal(), $this->isOther() => OperationEnum::Subtract,
                 default => OperationEnum::Add,
             },
             CashFlowEnum::Expense => match (true) {
-                $this->isCompany(), $this->isEggSeller(), $this->isBank() => OperationEnum::Subtract,
-                $this->isFarmer(), $this->isNormal(), $this->isOther() => OperationEnum::Add,
+                $this->isCompany(), $this->isBank() => OperationEnum::Subtract,
+                $this->isFarmer(), $this->isEggSeller(), $this->isNormal(), $this->isOther() => OperationEnum::Add,
                 default => OperationEnum::Subtract,
             },
         };
@@ -122,6 +122,15 @@ class Customer extends Model
             'add'      => (bool) $this->increment('balance', $balance),
             'subtract' => (bool) $this->decrement('balance', $balance),
             default    => false,
+        };
+    }
+
+    public function determineAmount(CashFlowEnum $type, int $amount){
+        $sign = $this->transactionOperation($type);
+        return match ($sign) {
+            'add'      => -$amount,
+            'subtract' => $amount,
+            default    => $amount,
         };
     }
 }

@@ -76,27 +76,39 @@ class Transaction extends Model
     {
         if ($this->stock_in_id && $this->cash_flow_id === CashFlowEnum::Deposit) {
             if ($this->stock_in?->product_id == ProductEnum::Egg->value) {
-                return $customer->isFarmer()
-                    ? $this->amount
-                    : -$this->amount;
+                return $customer->determineAmount($this->cash_flow_id, $this->amount);
+                // deprecated
+                // return $customer->isFarmer()
+                //     ? $this->amount
+                //     : -$this->amount;
             }
-            return -$this->amount;
+            return $customer->determineAmount($this->cash_flow_id, $this->amount);
+            // deprecated
+            // return -$this->amount;
         }
 
         if ($this->stock_out_id && $this->cash_flow_id === CashFlowEnum::Expense) {
-            return -$this->amount;
+            return $customer->determineAmount($this->cash_flow_id, $this->amount);
+            // deprecated
+            // return -$this->amount;
         }
 
         if (in_array($this->cash_flow_id, [CashFlowEnum::Deposit, CashFlowEnum::Expense])) {
-            if ($customer->isFarmer()) {
-                return $this->cash_flow_id == CashFlowEnum::Deposit ? $this->amount : -$this->amount;
-            }
+            return $customer->determineAmount($this->cash_flow_id, $this->amount);
+            // deprecated
+            // if ($customer->isFarmer()) {
+            //     return $this->cash_flow_id == CashFlowEnum::Deposit ? $this->amount : -$this->amount;
+            // }
 
-            if ($customer->isNormal()) {
-                return $this->cash_flow_id == CashFlowEnum::Deposit ? $this->amount : -$this->amount;
-            }
+            // if ($customer->isNormal()) {
+            //     return $this->cash_flow_id == CashFlowEnum::Deposit ? $this->amount : -$this->amount;
+            // }
 
-            return $this->cash_flow_id == CashFlowEnum::Deposit ? -$this->amount : $this->amount;
+            // if ($customer->isEggSeller()) {
+            //     return $this->cash_flow_id == CashFlowEnum::Deposit ? $this->amount : -$this->amount;
+            // }
+
+            // return $this->cash_flow_id == CashFlowEnum::Deposit ? -$this->amount : $this->amount;
         }
 
         return 0;
