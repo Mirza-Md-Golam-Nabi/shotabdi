@@ -53,7 +53,7 @@
                                 <x-filament::link :href="route($route['product_detail'], [
                                     'product_id' => $stock['stock_in_product'],
                                 ])" color="" weight="thin">
-                                    {{ $stock['stock_in_name'] }}
+                                    {{ $stock['stock_in_p_name'] }}<br>{{ $stock['stock_in_c_name'] }}
                                 </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
@@ -69,7 +69,7 @@
                                 <x-filament::link :href="route($route['product_detail'], [
                                     'product_id' => $stock['stock_out_product'],
                                 ])" color="" weight="thin">
-                                    {{ $stock['stock_out_name'] }}
+                                    {{ $stock['stock_out_p_name'] }}<br>{{ $stock['stock_out_c_name'] }}
                                 </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">

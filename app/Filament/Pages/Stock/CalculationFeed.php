@@ -46,14 +46,14 @@ class CalculationFeed extends Page
             'bn_day'      => $date_parse->locale('bn')->translatedFormat('l'),
         ];
 
-        $stock_ins = StockIn::with('product:id,name')
-            ->select('id', 'product_id', 'quantity')
+        $stock_ins = StockIn::with(['customer:id,name', 'product:id,name'])
+            ->select('id', 'customer_id', 'product_id', 'quantity')
             ->where('product_id', '!=', 1)
             ->where('date', $date_select)
             ->get();
 
-        $stock_outs = StockOut::with('product:id,name')
-            ->select('id', 'product_id', 'quantity')
+        $stock_outs = StockOut::with(['customer:id,name', 'product:id,name'])
+            ->select('id', 'customer_id', 'product_id', 'quantity')
             ->where('product_id', '!=', 1)
             ->where('date', $date_select)
             ->get();
@@ -75,12 +75,14 @@ class CalculationFeed extends Page
                 ->map(function ($i) use ($stock_in, $stock_out) {
                     return [
                         'stock_in_id'        => $stock_in[$i]['id'] ?? null,
+                        'stock_in_c_name'    => $stock_in[$i]['customer']['name'] ?? null,
                         'stock_in_product'   => $stock_in[$i]['product_id'] ?? null,
-                        'stock_in_name'      => $stock_in[$i]['product']['name'] ?? null,
+                        'stock_in_p_name'    => $stock_in[$i]['product']['name'] ?? null,
                         'stock_in_quantity'  => $stock_in[$i]['quantity'] ?? null,
                         'stock_out_id'       => $stock_out[$i]['id'] ?? null,
+                        'stock_out_c_name'   => $stock_out[$i]['customer']['name'] ?? null,
                         'stock_out_product'  => $stock_out[$i]['product_id'] ?? null,
-                        'stock_out_name'     => $stock_out[$i]['product']['name'] ?? null,
+                        'stock_out_p_name'   => $stock_out[$i]['product']['name'] ?? null,
                         'stock_out_quantity' => $stock_out[$i]['quantity'] ?? null,
                     ];
                 })->toArray();
