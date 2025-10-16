@@ -6,8 +6,16 @@
 
 1. Clone the repository
 
+For Local Machine:
+
 ```sh
 git clone https://github.com/Mirza-Md-Golam-Nabi/shotabdi.git
+```
+
+For Live Server or cPanel:
+
+```sh
+git clone https://github.com/Mirza-Md-Golam-Nabi/shotabdi.git .
 ```
 
 2. Goto project folder
@@ -22,7 +30,16 @@ cd shotabdi
 composer install
 ```
 
-3. Create the **.env** file
+If you want to install it in cPanel, first check **composer** is install or not. For checking:
+
+```sh
+composer -v
+```
+
+If you see "**Composer Not Found**", you need to install Composer on your system.
+Follow this guide [Composer install in cPanel](https://github.com/Mirza-Md-Golam-Nabi/tips/blob/master/laravel/composer/README.md#composer-package-install-%EF%B8%8F)
+
+4. Create the **.env** file
 
 Copy the example environment file:
 
@@ -30,13 +47,13 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-4. Run this command:
+5. Run this command:
 
 ```sh
 php artisan key:generate
 ```
 
-4. Create the database
+6. Create the database
 
 Create a database named:
 
@@ -44,7 +61,7 @@ Create a database named:
 shotabdi
 ```
 
-5. Run migrations and seeders
+7. Run migrations and seeders
 
 Run the following command to migrate and seed the database:
 
@@ -52,7 +69,7 @@ Run the following command to migrate and seed the database:
 php artisan migrate --seed
 ```
 
-6. Run the application
+8. Run the application
 
 ```sh
 npm install
