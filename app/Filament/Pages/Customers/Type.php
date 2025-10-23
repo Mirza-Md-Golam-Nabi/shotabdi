@@ -74,7 +74,7 @@ class Type extends Page implements HasTable
                     ->label('নাম')
                     ->searchable()
                     ->extraAttributes([
-                        'style' => 'padding: 0.25rem 0 !important;',
+                        'style' => 'padding: 0.25rem 0.5rem !important;',
                     ])
                     ->sortable(),
 
@@ -83,7 +83,7 @@ class Type extends Page implements HasTable
                     ->alignment('right')
                     ->formatStateUsing(fn($state) => format_number($state) ?? 0)
                     ->extraAttributes([
-                        'style' => 'padding: 0.25rem 0 !important;',
+                        'style' => 'padding: 0.25rem 0.5rem !important;',
                     ])
                     ->sortable(),
 

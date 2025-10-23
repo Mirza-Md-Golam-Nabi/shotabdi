@@ -29,10 +29,11 @@ class CalculationFeed extends Page
     public function mount()
     {
         $this->route = [
-            'current'        => 'filament.admin.pages.stock-calculation-feed',
-            'stock_in_edit'  => 'filament.admin.resources.stock-ins.edit',
-            'stock_out_edit' => 'filament.admin.resources.stock-outs.edit',
-            'product_detail' => 'filament.admin.pages.details-product',
+            'current'         => 'filament.admin.pages.stock-calculation-feed',
+            'stock_in_edit'   => 'filament.admin.resources.stock-ins.edit',
+            'stock_out_edit'  => 'filament.admin.resources.stock-outs.edit',
+            'product_detail'  => 'filament.admin.pages.details-product',
+            'customer_detail' => 'filament.admin.pages.details-customer',
         ];
 
         $date_select = request()->query('date', now()->toDateString());
@@ -75,13 +76,15 @@ class CalculationFeed extends Page
                 ->map(function ($i) use ($stock_in, $stock_out) {
                     return [
                         'stock_in_id'        => $stock_in[$i]['id'] ?? null,
+                        'stock_in_c_id'      => $stock_in[$i]['customer_id'] ?? null,
                         'stock_in_c_name'    => $stock_in[$i]['customer']['name'] ?? null,
-                        'stock_in_product'   => $stock_in[$i]['product_id'] ?? null,
+                        'stock_in_p_id'      => $stock_in[$i]['product_id'] ?? null,
                         'stock_in_p_name'    => $stock_in[$i]['product']['name'] ?? null,
                         'stock_in_quantity'  => $stock_in[$i]['quantity'] ?? null,
                         'stock_out_id'       => $stock_out[$i]['id'] ?? null,
+                        'stock_out_c_id'     => $stock_out[$i]['customer_id'] ?? null,
                         'stock_out_c_name'   => $stock_out[$i]['customer']['name'] ?? null,
-                        'stock_out_product'  => $stock_out[$i]['product_id'] ?? null,
+                        'stock_out_p_id'     => $stock_out[$i]['product_id'] ?? null,
                         'stock_out_p_name'   => $stock_out[$i]['product']['name'] ?? null,
                         'stock_out_quantity' => $stock_out[$i]['quantity'] ?? null,
                     ];

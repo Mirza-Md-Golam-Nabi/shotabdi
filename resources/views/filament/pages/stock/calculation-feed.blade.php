@@ -49,12 +49,18 @@
                                         icon-size="sm" :href="route($route['stock_in_edit'], [
                                             'record' => $stock['stock_in_id'],
                                         ])" tag="a" class="inline-flex" />
+                                    <x-filament::link :href="route($route['product_detail'], [
+                                        'product_id' => $stock['stock_in_p_id'],
+                                    ])" color="" weight="thin">
+                                        {{ $stock['stock_in_p_name'] }}
+                                    </x-filament::link>
+                                    <br>
+                                    <x-filament::link :href="route($route['customer_detail'], [
+                                        'customer_id' => $stock['stock_in_c_id'],
+                                    ])" color="" weight="thin">
+                                        {{ $stock['stock_in_c_name'] }}
+                                    </x-filament::link>
                                 @endif
-                                <x-filament::link :href="route($route['product_detail'], [
-                                    'product_id' => $stock['stock_in_product'],
-                                ])" color="" weight="thin">
-                                    {{ $stock['stock_in_p_name'] }}<br>{{ $stock['stock_in_c_name'] }}
-                                </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
                                 {{ $stock['stock_in_quantity'] }}
@@ -65,12 +71,18 @@
                                         icon-size="sm" :href="route($route['stock_out_edit'], [
                                             'record' => $stock['stock_out_id'],
                                         ])" tag="a" class="inline-flex" />
+                                    <x-filament::link :href="route($route['product_detail'], [
+                                        'product_id' => $stock['stock_out_p_id'],
+                                    ])" color="" weight="thin">
+                                        {{ $stock['stock_out_p_name'] }}
+                                    </x-filament::link>
+                                    <br>
+                                    <x-filament::link :href="route($route['customer_detail'], [
+                                        'customer_id' => $stock['stock_out_c_id'],
+                                    ])" color="" weight="thin">
+                                        {{ $stock['stock_out_c_name'] }}
+                                    </x-filament::link>
                                 @endif
-                                <x-filament::link :href="route($route['product_detail'], [
-                                    'product_id' => $stock['stock_out_product'],
-                                ])" color="" weight="thin">
-                                    {{ $stock['stock_out_p_name'] }}<br>{{ $stock['stock_out_c_name'] }}
-                                </x-filament::link>
                             </td>
                             <td class="border border-gray-300 px-1 py-1 text-right">
                                 {{ $stock['stock_out_quantity'] }}
