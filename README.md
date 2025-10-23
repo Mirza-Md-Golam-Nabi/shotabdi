@@ -37,7 +37,7 @@ composer -v
 ```
 
 If you see "**Composer Not Found**", you need to install Composer on your system.
-Follow this guide [Composer install in cPanel](https://github.com/Mirza-Md-Golam-Nabi/tips/blob/master/laravel/composer/README.md#composer-package-install-%EF%B8%8F)
+Follow this guide [Composer install in cPanel](https://github.com/Mirza-Md-Golam-Nabi/tips/blob/master/laravel/composer/README.md#composer-install-in-cpanel-%EF%B8%8F)
 
 4. Create the **.env** file
 
