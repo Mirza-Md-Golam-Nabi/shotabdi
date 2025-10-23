@@ -55,4 +55,40 @@ enum CustomerEnum: int {
             self::Bank      => 'danger',
         };
     }
+
+    public function filamentColor(): string
+    {
+        return match ($this) {
+            self::Normal    => 'text-primary-600 dark:text-primary-400',
+            self::Farmer    => 'text-success-600 dark:text-success-400',
+            self::Company   => 'text-danger-600 dark:text-danger-400',
+            self::EggSeller => 'text-info-600 dark:text-info-400',
+            self::Others    => 'text-gray-600 dark:text-gray-400',
+            self::Bank      => 'text-danger-600 dark:text-danger-400',
+        };
+    }
+
+    public function filamentBgColor(): string
+    {
+        return match ($this) {
+            self::Normal    => 'bg-primary-50 dark:bg-primary-900/20',
+            self::Farmer    => 'bg-success-50 dark:bg-success-900/20',
+            self::Company   => 'bg-danger-50 dark:bg-danger-900/20',
+            self::EggSeller => 'bg-info-50 dark:bg-info-900/20',
+            self::Others    => 'bg-gray-50 dark:bg-gray-900/20',
+            self::Bank      => 'bg-danger-50 dark:bg-danger-900/20',
+        };
+    }
+
+    public function filamentBorderColor(): string
+    {
+        return match ($this) {
+            self::Normal    => 'border-primary-200 dark:border-primary-700',
+            self::Farmer    => 'border-success-200 dark:border-success-700',
+            self::Company   => 'border-danger-200 dark:border-danger-700',
+            self::EggSeller => 'border-info-200 dark:border-info-700',
+            self::Others    => 'border-gray-200 dark:border-gray-700',
+            self::Bank      => 'border-danger-200 dark:border-danger-700',
+        };
+    }
 }
