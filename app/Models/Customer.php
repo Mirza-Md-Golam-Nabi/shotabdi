@@ -65,9 +65,30 @@ class Customer extends Model
         return $this->type === CustomerEnum::Bank;
     }
 
-    public static function selectOption(string $sort = 'asc'): Collection
+    public static function selectOption(string $sort = 'asc', int | array | null $type = null): Collection
     {
-        return self::orderBy('name', $sort)->pluck('name', 'id');
+        return self::query()
+            ->when($type, function ($q) use ($type) {
+                if (is_array($type)) {
+                    $q->whereIn('type', $type);
+                } else {
+                    $q->where('type', $type);
+                }
+            })
+            ->orderBy('name', $sort)
+            ->pluck('name', 'id');
+    }
+
+    public static function selectRemain(string $sort = 'asc', ?int $type = null): Collection
+    {
+        $exclude = ExcludeCustomerId::pluck('customer_id')->toArray();
+        return self::query()
+            ->when($exclude->isNotEmpty(), fn($q) => $q->whereNotIn('id', $exclude))
+            ->when($type, function ($q) use ($type) {
+                $q->where('type', $type);
+            })
+            ->orderBy('name', $sort)
+            ->pluck('name', 'id');
     }
 
     public static function bankOption(string $sort = 'asc'): array
@@ -125,7 +146,8 @@ class Customer extends Model
         };
     }
 
-    public function determineAmount(CashFlowEnum $type, int $amount){
+    public function determineAmount(CashFlowEnum $type, int $amount)
+    {
         $sign = $this->transactionOperation($type);
         return match ($sign) {
             'add'      => -$amount,

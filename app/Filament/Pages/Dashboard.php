@@ -3,6 +3,7 @@ namespace App\Filament\Pages;
 
 use App\Enums\CustomerEnum;
 use App\Models\Customer;
+use App\Models\ExcludeCustomerId;
 use Illuminate\Support\Facades\DB;
 
 class Dashboard extends \Filament\Pages\Dashboard
@@ -11,6 +12,8 @@ class Dashboard extends \Filament\Pages\Dashboard
 
     public function getViewData(): array
     {
+        $excludedIds = ExcludeCustomerId::pluck('customer_id');
+
         $customer_stats = Customer::select(
             'type',
             DB::raw('SUM(balance) as total_balance'),
@@ -22,7 +25,9 @@ class Dashboard extends \Filament\Pages\Dashboard
                 CustomerEnum::EggSeller,
                 CustomerEnum::Normal,
                 CustomerEnum::Company,
+                CustomerEnum::Others,
             ])
+            ->when($excludedIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $excludedIds))
             ->groupBy('type')
             ->get();
 

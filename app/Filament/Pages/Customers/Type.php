@@ -3,12 +3,14 @@ namespace App\Filament\Pages\Customers;
 
 use App\Enums\CustomerEnum;
 use App\Models\Customer;
+use App\Models\ExcludeCustomerId;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Type extends Page implements HasTable
 {
@@ -34,6 +36,11 @@ class Type extends Page implements HasTable
         }
     }
 
+    public function getExcludedIdsProperty(): Collection
+    {
+        return ExcludeCustomerId::pluck('customer_id');
+    }
+
     public function getSummaryProperty()
     {
         return Customer::selectRaw('
@@ -43,6 +50,7 @@ class Type extends Page implements HasTable
             COUNT(CASE WHEN balance < 0 THEN 1 END) as negative_customers
         ')
             ->where('type', $this->c_type_id)
+            ->when($this->excludedIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $this->excludedIds))
             ->first();
     }
 
@@ -62,7 +70,8 @@ class Type extends Page implements HasTable
     {
         return $table
             ->query(function () {
-                return Customer::where('type', $this->c_type_id);
+                return Customer::where('type', $this->c_type_id)
+                    ->when($this->excludedIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $this->excludedIds));
             })
             ->recordUrl(function (Model $record) {
                 return route('filament.admin.pages.details-customer', [
