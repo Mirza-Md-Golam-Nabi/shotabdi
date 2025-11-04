@@ -1,21 +1,22 @@
 <?php
 namespace App\Filament\Resources;
 
-use Filament\Tables;
-use App\Models\Product;
-use App\Models\Customer;
-use App\Models\StockOut;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
+use App\Enums\CustomerEnum;
 use App\Filament\Forms\CustomerForm;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use App\Filament\Traits\HasAmountCalculation;
 use App\Filament\Resources\StockOutResource\Pages;
+use App\Filament\Traits\HasAmountCalculation;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\StockOut;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class StockOutResource extends Resource
 {
@@ -79,9 +80,9 @@ class StockOutResource extends Resource
                 ->schema([
                     Select::make('customer_id')
                         ->label('কাস্টমার নাম')
-                        ->placeholder('Select')
+                        ->placeholder('Select Customer')
                     // ->relationship('customer', 'name')
-                        ->options(Customer::selectOption())
+                        ->options(Customer::selectOption(type: CustomerEnum::stockOutType()))
                         ->required()
                         ->searchable()
                     // ->preload()
@@ -144,6 +145,10 @@ class StockOutResource extends Resource
                         ->label('টাকার পরিমান')
                         ->numeric()
                         ->disabled()
+                        ->columnSpan(1),
+
+                    DatePicker::make('next_date')
+                        ->label('পরবর্তী তারিখ')
                         ->columnSpan(1),
                 ])
                 ->columns([

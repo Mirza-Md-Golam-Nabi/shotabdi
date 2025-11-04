@@ -1,24 +1,27 @@
 <?php
 namespace App\Filament\Resources\StockOutResource\Pages;
 
-use App\Enums\AvailableEnum;
+use App\Models\Stock;
+use Filament\Actions;
+use App\Models\Product;
+use App\Models\StockIn;
+use App\Models\Customer;
+use Filament\Forms\Form;
+use App\Enums\ProductEnum;
 use App\Enums\CashFlowEnum;
+use App\Models\Transaction;
+use App\Enums\AvailableEnum;
+use App\Models\FeedDisburse;
+use App\Enums\FeedDisburseEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Forms\CustomerForm;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Pages\EditRecord;
+use Filament\Forms\Components\DatePicker;
 use App\Filament\Resources\StockOutResource;
 use App\Filament\Traits\HandlesTransactions;
 use App\Filament\Traits\HasAmountCalculation;
-use App\Models\Customer;
-use App\Models\Product;
-use App\Models\Stock;
-use App\Models\StockIn;
-use App\Models\Transaction;
-use Filament\Actions;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Pages\EditRecord;
 
 class EditStockOut extends EditRecord
 {
@@ -26,35 +29,39 @@ class EditStockOut extends EditRecord
 
     protected static string $resource = StockOutResource::class;
 
-    public ?string $date = null;
+    public ?string $date         = null;
+    public ?string $previous_url = null;
 
     public function mount($record): void
     {
         parent::mount($record);
 
-        $rec = $this->record;
+        $this->date         = $this->record->date;
+        $this->previous_url = url()->previous();
+    }
 
-        $this->date = $rec->date;
-        $factor     = $rec->product_id == 1 ? 30 : 1;
-        $quantity   = $rec->quantity / $factor;
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $factor   = $data['product_id'] == ProductEnum::Egg->value ? 30 : 1;
+        $quantity = $data['quantity'] / $factor;
 
         $deposit = $this->tranBalance();
 
-        $amount = round($rec->rate * $rec->quantity) - $rec->discount - $deposit;
+        $amount = round($data['rate'] * $data['quantity']) - $data['discount'] - $deposit;
 
-        $this->form->fill([
-             ...$this->form->getState(),
-            'deposit'  => $deposit,
-            'amount'   => $amount,
-            'quantity' => $quantity,
-        ]);
+        $data['deposit']   = $deposit;
+        $data['amount']    = $amount;
+        $data['quantity']  = $quantity;
+        $data['next_date'] = FeedDisburse::where('stock_out_id', $data['id'])->value('next_date');
+
+        return $data;
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $this->stockOutRollback();
 
-        $multiply = $data['product_id'] == 1 ? 30 : 1;
+        $multiply = $data['product_id'] == ProductEnum::Egg->value ? 30 : 1;
 
         $data['quantity'] *= $multiply;
 
@@ -67,7 +74,7 @@ class EditStockOut extends EditRecord
     {
         $form_data = $this->form->getState();
 
-        $multiply = $form_data['product_id'] == 1 ? 30 : 1;
+        $multiply = $form_data['product_id'] == ProductEnum::Egg->value ? 30 : 1;
 
         $form_data['quantity'] *= $multiply;
 
@@ -82,6 +89,21 @@ class EditStockOut extends EditRecord
         $this->updateStock($form_data);
 
         $this->saveStockOutTransaction($form_data, $amount, $this->record);
+
+        if ($customer?->isFarmer()) {
+            $this->feedDisburse($form_data);
+        }
+    }
+
+    protected function feedDisburse($data)
+    {
+        return FeedDisburse::create([
+            'stock_out_id'  => $this->record->id,
+            'customer_id'   => $data['customer_id'],
+            'product_id'    => $data['product_id'],
+            'previous_date' => $data['date'] ?? null,
+            'next_date'     => $data['next_date'] ?? null,
+        ]);
     }
 
     protected function updateStock(array $data)
@@ -221,6 +243,11 @@ class EditStockOut extends EditRecord
                     ->numeric()
                     ->disabled()
                     ->columnSpan(1),
+
+                DatePicker::make('next_date')
+                    ->label('পরবর্তী তারিখ')
+                    ->columnSpan(1),
+
             ])
             ->columns([
                 'default' => 2,
@@ -238,7 +265,7 @@ class EditStockOut extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return url()->previous();
+        return $this->previous_url ?? url()->previous();
     }
 
     /**
@@ -312,6 +339,18 @@ class EditStockOut extends EditRecord
         }
 
         Transaction::where('stock_out_id', $rec->id)
+            ->delete();
+
+        FeedDisburse::where('customer_id', $customer_id)
+            ->where('product_id', $product_id)
+            ->where('status', FeedDisburseEnum::Delivered)
+            ->orderBy('id', 'desc')
+            ->limit(1)
+            ->update([
+                'status' => FeedDisburseEnum::Pending,
+            ]);
+
+        FeedDisburse::where('stock_out_id', $rec->id)
             ->delete();
     }
 }

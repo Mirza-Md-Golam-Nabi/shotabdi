@@ -44,6 +44,15 @@ enum CustomerEnum: int {
             ->toArray();
     }
 
+    public static function stockOutType(): array
+    {
+        return [
+            self::Normal->value,
+            self::Farmer->value,
+            self::EggSeller->value,
+        ];
+    }
+
     public function color(): string
     {
         return match ($this) {

@@ -1,16 +1,19 @@
 <?php
 namespace App\Filament\Resources\StockOutResource\Pages;
 
-use App\Enums\AvailableEnum;
-use App\Enums\CashFlowEnum;
-use App\Filament\Resources\StockOutResource;
-use App\Filament\Traits\HandlesTransactions;
-use App\Models\Customer;
 use App\Models\Stock;
 use App\Models\StockIn;
+use App\Models\Customer;
 use App\Models\StockOut;
-use Filament\Resources\Pages\CreateRecord;
+use App\Enums\ProductEnum;
+use App\Enums\CashFlowEnum;
+use App\Enums\AvailableEnum;
+use App\Models\FeedDisburse;
+use App\Enums\FeedDisburseEnum;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\StockOutResource;
+use App\Filament\Traits\HandlesTransactions;
 
 class CreateStockOut extends CreateRecord
 {
@@ -29,7 +32,7 @@ class CreateStockOut extends CreateRecord
         $this->date = $data['date'];
 
         foreach ($data['stock_outs'] as $stock) {
-            $multiply = $stock['product_id'] == 1 ? 30 : 1;
+            $multiply = $stock['product_id'] == ProductEnum::Egg->value ? 30 : 1;
 
             $stock['quantity'] *= $multiply;
 
@@ -50,6 +53,11 @@ class CreateStockOut extends CreateRecord
             $customer?->updateBalance($balance, $operation);
 
             $this->saveStockOutTransaction($stock, $amount, $stockOut);
+
+            if ($customer?->isFarmer()) {
+                $this->feedDisburseUpdate($stock);
+                $this->feedDisburse($stock, $stockOut);
+            }
         }
 
         return $this->stock_out;
@@ -157,5 +165,25 @@ class CreateStockOut extends CreateRecord
         }
 
         $stock->decrement('quantity', $data['quantity']);
+    }
+
+    protected function feedDisburse($stock, $stockOut)
+    {
+        return FeedDisburse::create([
+            'stock_out_id'  => $stockOut->id,
+            'customer_id'   => $stock['customer_id'],
+            'product_id'    => $stock['product_id'],
+            'previous_date' => $this->date,
+            'next_date'     => $stock['next_date'] ?? null,
+            'status'        => FeedDisburseEnum::Pending,
+        ]);
+    }
+
+    protected function feedDisburseUpdate($data)
+    {
+        return FeedDisburse::where('customer_id', $data['customer_id'])
+            ->where('product_id', $data['product_id'])
+            ->where('status', FeedDisburseEnum::Pending)
+            ->update(['status' => FeedDisburseEnum::Delivered]);
     }
 }

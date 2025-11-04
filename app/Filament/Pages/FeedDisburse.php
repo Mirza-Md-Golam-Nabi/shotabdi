@@ -1,68 +1,57 @@
 <?php
 namespace App\Filament\Pages;
 
-use App\Enums\CustomerEnum;
 use App\Enums\FeedDisburseEnum;
-use App\Models\Customer;
-use App\Models\ExcludeCustomerId;
-use App\Models\FeedDisburse;
+use App\Models\FeedDisburse as FeedDisburseModel;
 use Carbon\Carbon;
-use Filament\Pages\Dashboard as BaseDashboard;
-use Filament\Support\Enums\ActionSize;
+use Filament\Pages\Page;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\Actions;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
-class Dashboard extends BaseDashboard implements HasTable
+class FeedDisburse extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static string $view = 'filament.pages.dashboard';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    public function getViewData(): array
-    {
-        $excludedIds = ExcludeCustomerId::pluck('customer_id');
+    protected static string $view = 'filament.pages.feed-disburse';
 
-        $customer_stats = Customer::select(
-            'type',
-            DB::raw('SUM(balance) as total_balance'),
-            DB::raw('COUNT(*) as total_count')
-        )
-            ->whereIn('type', [
-                CustomerEnum::Bank,
-                CustomerEnum::Farmer,
-                CustomerEnum::EggSeller,
-                CustomerEnum::Normal,
-                CustomerEnum::Company,
-                CustomerEnum::Others,
-            ])
-            ->when($excludedIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $excludedIds))
-            ->groupBy('type')
-            ->get();
+    protected static bool $shouldRegisterNavigation = false;
 
-        return [
-            'customer_stats' => $customer_stats,
-        ];
-    }
+    protected ?string $heading = 'Feed Disburse List';
 
     public function table(Table $table): Table
     {
         return $table
             ->query(function () {
-                $tomorrow = Carbon::tomorrow()->toDateString();
-                return FeedDisburse::with('customer', 'product')
-                    ->where('status', FeedDisburseEnum::Pending)
-                    ->whereDate('next_date', '<=', $tomorrow)
-                    ->orderBy('next_date', 'asc')
-                    ->limit(5);
+                $tenDaysAgo = Carbon::now()->subDays(10)->toDateString();
+
+                return FeedDisburseModel::with('customer', 'product')
+                    ->where(function ($query) use ($tenDaysAgo) {
+                        $query->where('status', FeedDisburseEnum::Pending)
+                            ->orWhere(function ($query) use ($tenDaysAgo) {
+                                $query->whereIn('status', [FeedDisburseEnum::Delivered, FeedDisburseEnum::Cancel])
+                                    ->whereDate('next_date', '>=', $tenDaysAgo);
+                            });
+                    })
+                    ->orderByRaw("
+                        CASE
+                            WHEN status = ? THEN 1
+                            WHEN status IN (?, ?) THEN 2
+                            ELSE 3
+                        END
+                    ", [
+                        FeedDisburseEnum::Pending,
+                        FeedDisburseEnum::Delivered,
+                        FeedDisburseEnum::Cancel,
+                    ])
+                    ->orderBy('next_date', 'asc');
             })
-            ->paginated(false)
             ->striped()
             ->recordUrl(function (Model $record) {
                 return route('filament.admin.pages.details-customer', [
@@ -94,6 +83,12 @@ class Dashboard extends BaseDashboard implements HasTable
                     ])
                     ->sortable(),
 
+                TextColumn::make('status')
+                    ->label('স্ট্যাটাস')
+                    ->badge()
+                    ->color(fn(FeedDisburseEnum $state) => $state->color())
+                    ->formatStateUsing(fn(FeedDisburseEnum $state) => $state->label()),
+
                 TextColumn::make('next_date')
                     ->label('পরবর্তী তারিখ')
                     ->alignCenter()
@@ -110,14 +105,6 @@ class Dashboard extends BaseDashboard implements HasTable
             ])
             ->defaultSort('customer.name', 'asc')
             ->filters([])
-            ->headerActions([
-                Action::make('disburse_feed')
-                    ->label('All Data')
-                    ->button()
-                    ->color('primary')
-                    ->size(ActionSize::ExtraSmall)
-                    ->url(route('filament.admin.pages.feed-disburse')),
-            ])
             ->actions([
                 Action::make('skip')
                     ->icon('heroicon-o-x-circle')
@@ -126,6 +113,7 @@ class Dashboard extends BaseDashboard implements HasTable
                     ->requiresConfirmation()
                     ->modalHeading('আপনি কি নিশ্চিত?')
                     ->modalDescription('এই কাস্টমারের স্ট্যাটাস "Skipped" করা হবে। আপনি কি চালিয়ে যেতে চান?')
+                    ->visible(fn(FeedDisburseModel $record) => $record->status === FeedDisburseEnum::Pending)
                     ->action(function (FeedDisburse $record) {
                         $record->update([
                             'status' => FeedDisburseEnum::Cancel,
