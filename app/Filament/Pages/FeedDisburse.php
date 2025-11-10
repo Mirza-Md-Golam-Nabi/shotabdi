@@ -114,7 +114,7 @@ class FeedDisburse extends Page implements HasTable
                     ->modalHeading('আপনি কি নিশ্চিত?')
                     ->modalDescription('এই কাস্টমারের স্ট্যাটাস "Skipped" করা হবে। আপনি কি চালিয়ে যেতে চান?')
                     ->visible(fn(FeedDisburseModel $record) => $record->status === FeedDisburseEnum::Pending)
-                    ->action(function (FeedDisburse $record) {
+                    ->action(function (FeedDisburseModel $record) {
                         $record->update([
                             'status' => FeedDisburseEnum::Cancel,
                         ]);
