@@ -114,7 +114,7 @@ class EditStockIn extends EditRecord
                     ->required()
                     ->searchable()
                 // ->preload()
-                    ->columnSpan(1)
+                    ->columnSpan('full')
                     ->createOptionForm([
                         TextInput::make('name')
                             ->label('নাম')
@@ -147,7 +147,7 @@ class EditStockIn extends EditRecord
                     ->required()
                     ->searchable()
                 // ->preload()
-                    ->columnSpan(1)
+                    ->columnSpan('full')
                     ->createOptionForm([
                         TextInput::make('name')
                             ->required()
