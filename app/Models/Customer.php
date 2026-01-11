@@ -121,13 +121,13 @@ class Customer extends Model
     {
         $operation = match ($type) {
             CashFlowEnum::Deposit => match (true) {
-                $this->isCompany(), $this->isBank() => OperationEnum::Add,
-                $this->isFarmer(), $this->isEggSeller(), $this->isNormal(), $this->isOther() => OperationEnum::Subtract,
+                $this->isBank() => OperationEnum::Add,
+                $this->isCompany(), $this->isFarmer(), $this->isEggSeller(), $this->isNormal(), $this->isOther() => OperationEnum::Subtract,
                 default => OperationEnum::Add,
             },
             CashFlowEnum::Expense => match (true) {
-                $this->isCompany(), $this->isBank() => OperationEnum::Subtract,
-                $this->isFarmer(), $this->isEggSeller(), $this->isNormal(), $this->isOther() => OperationEnum::Add,
+                $this->isBank() => OperationEnum::Subtract,
+                $this->isCompany(), $this->isFarmer(), $this->isEggSeller(), $this->isNormal(), $this->isOther() => OperationEnum::Add,
                 default => OperationEnum::Subtract,
             },
         };
