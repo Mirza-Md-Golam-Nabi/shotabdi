@@ -17,7 +17,7 @@ class Summary extends Page
 
     protected static ?string $title = 'Transactions Date';
 
-    protected ?string $heading = 'Transactions Date';
+    protected ?string $heading = 'Transactions Datexx';
 
     protected static ?string $navigationGroup = 'Summary';
 
