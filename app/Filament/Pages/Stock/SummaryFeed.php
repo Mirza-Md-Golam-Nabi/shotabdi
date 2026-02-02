@@ -1,12 +1,12 @@
 <?php
 namespace App\Filament\Pages\Stock;
 
+use App\Enums\ProductEnum;
 use App\Models\StockIn;
 use App\Models\StockOut;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
-use Illuminate\Support\Collection;
 
 class SummaryFeed extends Page
 {
@@ -24,47 +24,54 @@ class SummaryFeed extends Page
 
     protected static ?string $slug = 'stock-summary-feed';
 
-    public Collection $groupedDate;
-
     public ?string $searchDate = null;
 
     public ?string $routeName = null;
+
+    public int $perPage = 30;
+
+    public function loadMore(): void
+    {
+        $this->perPage += 15;
+    }
 
     public function mount(): void
     {
         $this->routeName = 'filament.admin.pages.stock-calculation-feed';
 
+        $this->form->fill();
+    }
+
+    public function getGroupDateProperty()
+    {
         $stock_ins = StockIn::select('date')
-            ->where('product_id', '!=', 1)
+            ->where('product_id', '!=', ProductEnum::Egg)
             ->groupBy('date')
             ->orderByDesc('date')
-            ->take(30)
+            ->take($this->perPage)
             ->get();
 
         $stock_outs = StockOut::select('date')
-            ->where('product_id', '!=', 1)
+            ->where('product_id', '!=', ProductEnum::Egg)
             ->groupBy('date')
             ->orderByDesc('date')
-            ->take(30)
+            ->take($this->perPage)
             ->get();
 
-        $dates = $stock_ins->pluck('date')
+        return $stock_ins->pluck('date')
             ->merge($stock_outs->pluck('date'))
             ->unique()
             ->sortDesc()
-            ->take(30);
+            ->take($this->perPage)
+            ->map(function ($date) {
+                $carbonDate = Carbon::parse($date);
 
-        $this->groupedDate = $dates->map(function ($date) {
-            $carbonDate = Carbon::parse($date);
-
-            return (object) [
-                'date'    => $date,
-                'en_date' => $carbonDate->format('d M, Y'),
-                'bn_day'  => $carbonDate->locale('bn')->translatedFormat('l'),
-            ];
-        });
-
-        $this->form->fill();
+                return (object) [
+                    'date'    => $date,
+                    'en_date' => $carbonDate->format('d M, Y'),
+                    'bn_day'  => $carbonDate->locale('bn')->translatedFormat('l'),
+                ];
+            });
     }
 
     protected function getFormSchema(): array

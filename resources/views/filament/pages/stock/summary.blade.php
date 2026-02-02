@@ -9,7 +9,7 @@
     </form>
 
     <div class="flex flex-wrap gap-2">
-        @foreach ($groupedDate as $item)
+        @foreach ($this->groupDate as $item)
             <a href="{{ route($routeName, ['date' => $item->date]) }}"
                 class="block sm:w-64 px-6 py-2 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
 
@@ -22,5 +22,11 @@
             </a>
         @endforeach
     </div>
-
+    @if ($this->groupDate->count() >= $perPage)
+        <div class="flex justify-center">
+            <x-filament::button wire:click="loadMore" color="gray" size="sm" icon="heroicon-o-arrow-down">
+                Load More
+            </x-filament::button>
+        </div>
+    @endif
 </x-filament-panels::page>

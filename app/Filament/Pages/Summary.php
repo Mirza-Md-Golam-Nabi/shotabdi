@@ -5,48 +5,58 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
-use Illuminate\Support\Collection;
 
 class Summary extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.summary';
+    protected static string $view = 'filament.pages.stock.summary';
 
     protected static ?string $navigationLabel = 'Deposit';
 
     protected static ?string $title = 'Transactions Date';
 
-    protected ?string $heading = 'Transactions Datexx';
+    protected ?string $heading = 'Transactions Date';
 
     protected static ?string $navigationGroup = 'Summary';
 
-    public Collection $groupedTransactions;
-
     public ?string $searchDate = null;
+
+    public ?string $routeName = null;
+
+    public int $perPage = 30;
+
+    public function loadMore(): void
+    {
+        $this->perPage += 15;
+    }
 
     public function mount(): void
     {
-        $transactions = Transaction::query()
+        $this->routeName = 'filament.admin.pages.daily-calculation';
+
+        $this->form->fill();
+    }
+
+    public function getGroupDateProperty()
+    {
+        return Transaction::query()
             ->select('date')
             ->whereNull('stock_in_id')
             ->whereNull('stock_out_id')
             ->groupBy('date')
             ->orderByDesc('date')
-            ->take(30)
-            ->get();
+            ->limit($this->perPage)
+            ->get()
+            ->map(function ($item) {
+                $carbonDate = Carbon::parse($item->date);
 
-        $this->groupedTransactions = $transactions->map(function ($item) {
-            $carbonDate = Carbon::parse($item->date);
-
-            return (object) [
-                'date'    => $item->date,
-                'en_date' => $carbonDate->format('d M, Y'),
-                'bn_day'  => $carbonDate->locale('bn')->translatedFormat('l'),
-            ];
-        });
-
-        $this->form->fill();
+                return (object) [
+                    'date'    => $item->date,
+                    'en_date' => $carbonDate->format('d M, Y'),
+                    'bn_day'  => $carbonDate->locale('bn')->translatedFormat('l'),
+                ];
+            });
     }
 
     protected function getFormSchema(): array
