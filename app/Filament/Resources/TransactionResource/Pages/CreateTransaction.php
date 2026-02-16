@@ -21,6 +21,9 @@ class CreateTransaction extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
+        session([
+            'last_customer_id' => $data['transactions'][0]['customer_id'] ?? null,
+        ]);
         $this->lastDate = $data['date'];
         $first          = null;
 

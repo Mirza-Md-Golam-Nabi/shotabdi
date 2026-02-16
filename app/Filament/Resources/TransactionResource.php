@@ -35,6 +35,7 @@ class TransactionResource extends Resource
                     ->schema([
                         Select::make('customer_id')
                             ->label('কাস্টমার নাম')
+                            ->default(fn() => session('last_customer_id'))
                         // ->relationship('customer', 'name')
                             ->options(Customer::selectOption())
                             ->required()
