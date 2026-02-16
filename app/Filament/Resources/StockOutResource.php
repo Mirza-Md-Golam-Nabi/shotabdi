@@ -80,6 +80,7 @@ class StockOutResource extends Resource
                 ->schema([
                     Select::make('customer_id')
                         ->label('কাস্টমার নাম')
+                        ->default(fn() => session('last_customer_id'))
                         ->placeholder('Select Customer')
                     // ->relationship('customer', 'name')
                         ->options(Customer::selectOption(type: CustomerEnum::stockOutType()))
@@ -95,6 +96,7 @@ class StockOutResource extends Resource
 
                     Select::make('product_id')
                         ->label('পণ্যের নাম')
+                        ->default(fn() => session('last_product_id'))
                         ->placeholder('Select')
                     // ->relationship('customer', 'name')
                         ->options(Product::selectOption())

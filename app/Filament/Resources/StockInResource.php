@@ -77,9 +77,11 @@ class StockInResource extends Resource
                 ->default(fn() => request()->query('date'))
                 ->required(),
             Repeater::make('stock_ins')
+                ->defaultItems(1)
                 ->schema([
                     Select::make('customer_id')
                         ->label('কাস্টমার নাম')
+                        ->default(fn () => session('last_customer_id'))
                         ->placeholder('Select')
                     // ->relationship('customer', 'name')
                         ->options(Customer::selectOption())
@@ -94,6 +96,7 @@ class StockInResource extends Resource
                         }),
                     Select::make('product_id')
                         ->label('পণ্যের নাম')
+                        ->default(fn() => session('last_product_id'))
                         ->placeholder('Select')
                     // ->relationship('customer', 'name')
                         ->options(Product::selectOption())

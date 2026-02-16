@@ -26,6 +26,11 @@ class CreateStockIn extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
+        session([
+            'last_customer_id' => $data['stock_ins'][0]['customer_id'] ?? null,
+            'last_product_id' => $data['stock_ins'][0]['product_id'] ?? null,
+        ]);
+
         $this->date = $data['date'];
 
         foreach ($data['stock_ins'] as $stock) {
